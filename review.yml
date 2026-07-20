@@ -1,0 +1,81 @@
+aid: newcastle-permanent
+name: Newcastle Permanent Building Society
+review:
+  question: Does Newcastle Permanent Building Society expose a confirmed live, public
+    CDR Product Reference Data API, and is its public API surface bank-proprietary or
+    the shared Consumer Data Standards contract?
+  answer: true
+  date: '2026-07-20'
+  reviewer: API Evangelist
+  cdrPrdConfirmed: true
+  specProvenance: dsb-cds-standard
+findings:
+  summary: |
+    Newcastle Permanent Building Society is a customer-owned Australian ADI (part of
+    Newcastle Greater Mutual Group / NGM Group since the 2023 Greater Bank merger) and
+    a data holder under the Consumer Data Right. Its public, unauthenticated Product
+    Reference Data (PRD) API was confirmed LIVE on 2026-07-20: a GET to
+    https://openbank.newcastlepermanent.com.au/cds-au/v1/banking/products returned
+    HTTP 200 with application/json, a data.products array (meta.totalRecords 41), an
+    x-v: 4 response header, and an x-fapi-interaction-id, exactly as required by the
+    Data Standards Body (DSB) Consumer Data Standards. The endpoint sits behind an F5
+    web application firewall that rejects non-browser clients with a "Request Rejected"
+    HTML page (HTTP 200), so a browser-like User-Agent and Referer are required to
+    receive the real JSON. The bank also runs a developer portal branded "NPBS
+    Innovation Sandbox and Marketplace" at https://developer.newcastlepermanent.com.au/
+    (HTTP 200). No dedicated GitHub organisation was found (github.com/newcastlepermanent
+    returned 404). The PRD is a read-only, no-auth surface; the broader CDR consumer
+    data sharing (accounts, balances, transactions) is gated behind the CDR accredited
+    data recipient (ADR) model using OAuth2 / OpenID Connect with FAPI security profile
+    and PKCE, not exposed publicly. The harvested contract is the shared DSB Consumer
+    Data Standards "CDR Banking API" OpenAPI 3.0.3 (version 1.36.0), NOT a
+    bank-proprietary specification; the unauthenticated PRD is the GET /banking/products
+    and GET /banking/products/{productId} subset of that standard.
+  transports:
+    - protocol: REST
+      scheme: https
+      baseURL: https://openbank.newcastlepermanent.com.au/cds-au/v1/banking/products
+      documented: true
+      note: Public unauthenticated CDR Product Reference Data endpoint. Confirmed HTTP 200 JSON with x-v 4.
+    - protocol: REST
+      scheme: https
+      baseURL: https://openbank.newcastlepermanent.com.au/cds-au/v1/banking/products/{productId}
+      documented: true
+      note: Product detail endpoint per the Consumer Data Standards (not individually probed).
+  endpointsConfirmedRest:
+    - GET https://openbank.newcastlepermanent.com.au/cds-au/v1/banking/products
+  authModel:
+    prd: none (public, unauthenticated Product Reference Data)
+    consumerDataSharing: OAuth2 / OpenID Connect, FAPI security profile, CDR accredited data recipient (ADR) model
+  specProvenanceNote: |
+    openapi/newcastle-permanent-cds-banking-products-openapi.yml is the shared DSB
+    Consumer Data Standards "CDR Banking API" specification (OpenAPI 3.0.3, version
+    1.36.0), harvested verbatim from
+    https://consumerdatastandardsaustralia.github.io/standards/includes/swagger/cds_banking.json
+    and converted JSON to YAML without content changes. It is the industry-wide standard
+    that Newcastle Permanent's PRD conforms to, not a Newcastle-Permanent-proprietary
+    contract. No bank-specific OpenAPI was found to be publicly downloadable.
+sources:
+  - url: https://openbank.newcastlepermanent.com.au/cds-au/v1/banking/products
+    type: APIReference
+    note: Live PRD endpoint. HTTP 200 JSON, data.products array (41 records), x-v 4, x-fapi-interaction-id.
+  - url: https://developer.newcastlepermanent.com.au/
+    type: DeveloperPortal
+    note: HTTP 200. Titled "NPBS Innovation Sandbox and Marketplace".
+  - url: https://consumerdatastandardsaustralia.github.io/standards/
+    type: Documentation
+    note: DSB Consumer Data Standards; source of the shared CDR Banking API OpenAPI (v1.36.0) the PRD conforms to.
+  - url: https://www.newcastlepermanent.com.au/
+    type: Website
+    note: Bank homepage (behind Akamai bot protection; returns 403 to non-browser clients).
+  - url: https://www.linkedin.com/company/newcastle-permanent
+    type: LinkedIn
+    note: HTTP 200.
+actions:
+  openapiPath: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+  apisYmlUpdated: true
+  reason: |
+    Confirmed a real, live public CDR Product Reference Data API and a working developer
+    portal. Harvested the shared DSB Consumer Data Standards CDR Banking API OpenAPI
+    verbatim (provenance recorded as CDS standard, not proprietary). Identity captured
+    for a customer-owned mutual ADI within NGM Group.

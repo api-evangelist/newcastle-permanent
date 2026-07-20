@@ -1,0 +1,65 @@
+aid: newcastle-permanent
+url: https://raw.githubusercontent.com/api-evangelist/newcastle-permanent/refs/heads/main/apis.yml
+name: Newcastle Permanent Building Society
+kind: company
+description: Newcastle Permanent Building Society is a customer-owned Australian authorised
+  deposit-taking institution (ADI) founded in 1903 and headquartered in Newcastle, New
+  South Wales. As a mutual, it is owned by its members rather than shareholders, and it
+  provides retail banking, home loans, savings, term deposits, and insurance to communities
+  across NSW. In March 2023 it merged with Greater Bank to form Newcastle Greater Mutual
+  Group (NGM Group), one of Australia's largest customer-owned banks, while Newcastle
+  Permanent continues to operate as a consumer brand. As a regulated ADI it is a data
+  holder under Australia's Consumer Data Right (CDR / Open Banking) and exposes a live,
+  public, unauthenticated Product Reference Data (PRD) API conforming to the Data Standards
+  Body Consumer Data Standards, alongside an NPBS Innovation Sandbox and Marketplace
+  developer portal.
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+tags:
+- Financial
+- Banks
+- Open Banking
+- CDR
+- Consumer Banking
+- Building Society
+- Mutual
+- Australia
+created: '2026-07-20'
+modified: '2026-07-20'
+specificationVersion: '0.19'
+apis:
+- aid: newcastle-permanent:newcastle-permanent-cds-banking-products-api
+  name: Newcastle Permanent Building Society CDR Product Reference Data API
+  tags:
+  - CDR
+  - Open Banking
+  - Product Reference Data
+  - Banking
+  - Australia
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://developer.newcastlepermanent.com.au/
+  baseURL: https://openbank.newcastlepermanent.com.au/cds-au/v1/banking/products
+  properties:
+  - url: https://developer.newcastlepermanent.com.au/
+    type: Documentation
+  - url: https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api_get-products
+    type: APIReference
+  - url: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+    type: OpenAPI
+  description: Live, public, unauthenticated Consumer Data Right (CDR) Product Reference
+    Data (PRD) API exposing Newcastle Permanent's banking product catalogue (term deposits,
+    savings, transaction accounts, home loans, credit cards and more) under the standard
+    Consumer Data Standards path /cds-au/v1/banking/products. Confirmed live with an HTTP
+    200 JSON response carrying a data.products array, an x-v response version header, and
+    x-fapi-interaction-id, currently serving 41 products at endpoint version x-v 4.
+common:
+- type: Website
+  url: https://www.newcastlepermanent.com.au/
+- type: DeveloperPortal
+  url: https://developer.newcastlepermanent.com.au/
+- type: Documentation
+  url: https://consumerdatastandardsaustralia.github.io/standards/
+- type: LinkedIn
+  url: https://www.linkedin.com/company/newcastle-permanent
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com
