@@ -1,0 +1,26 @@
+generated: '2026-07-20'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: www.newcastlepermanent.com.au
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Dec  2 23:59:59 2026 GMT
+  hsts: null
+- host: developer.newcastlepermanent.com.au
+  https: true
+  tls_version: TLSv1.2
+  cert_expires: Nov  4 23:59:59 2026 GMT
+  hsts: true
+- host: openbank.newcastlepermanent.com.au
+  https: true
+  tls_version: TLSv1.2
+  cert_expires: Sep  9 23:59:59 2026 GMT
+  hsts: true
+domains:
+- domain: newcastlepermanent.com.au
+  dnssec: false
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: reject

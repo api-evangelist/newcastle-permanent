@@ -1,0 +1,34 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+status: candidate
+notes: >-
+  No official/hosted MCP server was found for Newcastle Permanent or the NPBS
+  Innovation Sandbox. This is a DERIVED candidate tool list covering the public,
+  unauthenticated CDR Product Reference Data operations only (the ADR-gated
+  consumer-data-sharing operations are excluded — they require CDR accreditation
+  and are not appropriate for an unauthenticated MCP surface). Tools map 1:1 to
+  the public product operationIds and would call the live PRD base URL.
+server:
+  name: newcastle-permanent
+  transport: http
+  url: null
+  base_url: https://openbank.newcastlepermanent.com.au/cds-au/v1
+tools:
+  - name: list_banking_products
+    description: >-
+      List Newcastle Permanent banking products openly offered to the market
+      (term deposits, savings, transaction accounts, home loans, credit cards).
+      Supports effective/updated-since/brand/product-category filters and
+      page/page-size pagination. Requires the x-v header.
+    source_operation: openapi/newcastle-permanent-cds-banking-products-openapi.yml#listBankingProducts
+    http: {method: GET, path: /banking/products}
+    public: true
+  - name: get_banking_product_detail
+    description: >-
+      Obtain detailed information on a single Newcastle Permanent product by
+      productId, including features, constraints, eligibility, fees, deposit and
+      lending rates. Requires the x-v header.
+    source_operation: openapi/newcastle-permanent-cds-banking-products-openapi.yml#getBankingProductDetail
+    http: {method: GET, path: '/banking/products/{productId}'}
+    public: true

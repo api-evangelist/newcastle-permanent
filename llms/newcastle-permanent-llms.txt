@@ -1,0 +1,30 @@
+# Newcastle Permanent Building Society
+
+> Newcastle Permanent Building Society is a customer-owned Australian authorised deposit-taking institution (ADI), founded in 1903 and headquartered in Newcastle, NSW, and part of Newcastle Greater Mutual Group (NGM Group) since its 2023 merger with Greater Bank. As a Consumer Data Right (CDR) data holder it exposes a live, public, unauthenticated Product Reference Data (PRD) API conforming to the DSB Consumer Data Standards, alongside the "NPBS Innovation Sandbox and Marketplace" developer portal.
+
+## APIs
+
+- [CDR Product Reference Data API](https://developer.newcastlepermanent.com.au/): Public, unauthenticated CDR Product Reference Data — banking product catalogue (term deposits, savings, transaction accounts, home loans, credit cards) under /cds-au/v1/banking/products. Confirmed live, x-v 4, 41 products.
+
+## Specs
+
+- [OpenAPI (shared DSB CDR Banking API v1.36.0)](openapi/newcastle-permanent-cds-banking-products-openapi.yml)
+- [OpenAPI Overlay (API Evangelist enhancements)](overlays/newcastle-permanent-cds-banking-products-overlay.yaml)
+
+## Artifacts
+
+- [Authentication profile](authentication/newcastle-permanent-authentication.yml): public PRD = none; CDR data sharing = OAuth2/OIDC/FAPI/mTLS (ADR-gated).
+- [Conventions](conventions/newcastle-permanent-conventions.yml): x-v/x-min-v versioning headers, page/page-size pagination, x-fapi-interaction-id tracing.
+- [Error catalog](errors/newcastle-permanent-problem-types.yml): CDS ResponseErrorListV2 envelope with error-code URNs.
+- [Conformance](conformance/newcastle-permanent-conformance.yml): CDR PRD, Consumer Data Standards, OAuth2/OIDC/FAPI, standard pagination.
+- [Lifecycle](lifecycle/newcastle-permanent-lifecycle.yml): per-endpoint x-v versioning, CDS obsolete-versions deprecation model.
+- [Data model](data-model/newcastle-permanent-data-model.yml): BankingProduct aggregate and its features/constraints/fees/rates.
+- [MCP server (candidate)](mcp/newcastle-permanent-mcp.yml): derived candidate tools for the public product operations.
+- [Agent skill: browse products](skills/newcastle-permanent-browse-products.md)
+
+## Docs
+
+- [Developer portal — NPBS Innovation Sandbox and Marketplace](https://developer.newcastlepermanent.com.au/)
+- [DSB Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/)
+- [CDR Banking API reference — Get Products](https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api_get-products)
+- [Newcastle Permanent website](https://www.newcastlepermanent.com.au/)

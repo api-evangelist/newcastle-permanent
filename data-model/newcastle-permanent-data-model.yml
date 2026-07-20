@@ -1,0 +1,68 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+docs: https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api_banking-apis
+notes: >-
+  Entity-relationship graph for Newcastle Permanent's public CDR Product Reference
+  Data surface, derived from the BankingProduct schemas in the shared DSB CDR
+  Banking API contract. The public PRD exposes the Product aggregate and its
+  detail sub-objects; the account/transaction/payee entities exist in the shared
+  contract but are part of the ADR-gated data-sharing tier, not the public API.
+entities:
+  - name: BankingProduct
+    id_field: productId
+    id_type: ASCIIString
+    schema: BankingProductV6 / BankingProductDetailV7
+    key_fields: [productId, productCategory, name, description, brand, effectiveFrom, effectiveTo, lastUpdated, isTailored]
+    public: true
+    endpoints:
+      - {operation: listBankingProducts, method: GET, path: /banking/products}
+      - {operation: getBankingProductDetail, method: GET, path: '/banking/products/{productId}'}
+  - name: BankingProductBundle
+    schema: BankingProductBundle
+  - name: BankingProductFeature
+    schema: BankingProductFeatureV4
+  - name: BankingProductConstraint
+    schema: BankingProductConstraintV3
+  - name: BankingProductEligibility
+    schema: BankingProductEligibility
+  - name: BankingProductFee
+    schema: BankingProductFeeV2
+  - name: BankingProductDepositRate
+    schema: BankingProductDepositRate
+  - name: BankingProductLendingRate
+    schema: BankingProductLendingRateV2
+  - name: BankingProductRateCondition
+    schema: BankingProductRateCondition
+  - name: BankingProductAdditionalInformation
+    schema: additionalInformation
+  - name: BankingProductCardArt
+    schema: cardArt
+relationships:
+  - {from: BankingProduct, to: BankingProductFeature, type: has_many, via: features}
+  - {from: BankingProduct, to: BankingProductConstraint, type: has_many, via: constraints}
+  - {from: BankingProduct, to: BankingProductEligibility, type: has_many, via: eligibility}
+  - {from: BankingProduct, to: BankingProductFee, type: has_many, via: fees}
+  - {from: BankingProduct, to: BankingProductDepositRate, type: has_many, via: depositRates}
+  - {from: BankingProduct, to: BankingProductLendingRate, type: has_many, via: lendingRates}
+  - {from: BankingProduct, to: BankingProductBundle, type: has_many, via: bundles}
+  - {from: BankingProduct, to: BankingProductAdditionalInformation, type: has_one, via: additionalInformation}
+  - {from: BankingProduct, to: BankingProductCardArt, type: has_many, via: cardArt}
+  - {from: BankingProductBundle, to: BankingProduct, type: has_many, via: productIds}
+  - {from: BankingProductDepositRate, to: BankingProductRateCondition, type: has_many, via: rateConditions}
+  - {from: BankingProductLendingRate, to: BankingProductRateCondition, type: has_many, via: rateConditions}
+enumerations:
+  productCategory:
+    - BUSINESS_LOANS
+    - BUY_NOW_PAY_LATER
+    - CRED_AND_CHRG_CARDS
+    - LEASES
+    - MARGIN_LOANS
+    - OVERDRAFTS
+    - PERS_LOANS
+    - REGULATED_TRUST_ACCOUNTS
+    - RESIDENTIAL_MORTGAGES
+    - TERM_DEPOSITS
+    - TRADE_FINANCE
+    - TRANS_AND_SAVINGS_ACCOUNTS
+    - TRAVEL_CARDS

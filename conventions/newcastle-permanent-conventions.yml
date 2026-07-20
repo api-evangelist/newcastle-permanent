@@ -1,0 +1,76 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+docs: https://consumerdatastandardsaustralia.github.io/standards/#introduction
+notes: >-
+  Cross-cutting request/response semantics for Newcastle Permanent's public CDR
+  Product Reference Data (PRD) API. Derived from the shared DSB Consumer Data
+  Standards "CDR Banking API" contract (v1.36.0) that the PRD conforms to. The
+  public PRD surface is read-only (GET) and unauthenticated, so there is no
+  idempotency contract (idempotency applies to unsafe methods; none are exposed
+  publicly here).
+authentication:
+  public_prd: none
+  detail: >-
+    The Product Reference Data endpoints (GET /banking/products,
+    GET /banking/products/{productId}) are public and unauthenticated. The
+    broader CDR consumer-data-sharing surface uses OAuth2 / OpenID Connect with
+    the FAPI security profile and PKCE via the CDR accredited-data-recipient
+    model (see authentication/newcastle-permanent-authentication.yml).
+versioning:
+  style: header
+  request_headers:
+    - {name: x-v, required: true, description: Version of the endpoint requested by the client (positive integer)}
+    - {name: x-min-v, required: false, description: Minimum acceptable version; endpoint responds with highest supported between x-min-v and x-v}
+  response_headers:
+    - {name: x-v, description: Version of the endpoint that actually responded}
+  unsupported: Returns HTTP 406 (urn:au-cds:error:cds:header:unsupported-version) when no requested version is supported.
+  current_endpoint_version:
+    listBankingProducts: '5'
+    getBankingProductDetail: '7'
+  observed_live: {endpoint: GET /banking/products, x-v: 4}
+pagination:
+  style: page-number
+  params:
+    - {name: page, in: query, default: 1, description: Page of results to request}
+    - {name: page-size, in: query, default: 25, description: Number of records per page}
+  response_fields:
+    - {path: meta.totalRecords, description: Total number of records in the full result set}
+    - {path: meta.totalPages, description: Total number of pages}
+    - {path: links.self, description: URI to the current page}
+    - {path: links.first, description: URI to the first page}
+    - {path: links.prev, description: URI to the previous page (null on first page)}
+    - {path: links.next, description: URI to the next page (null on last page)}
+    - {path: links.last, description: URI to the last page}
+  invalid_page: Returns HTTP 422 (urn:au-cds:error:cds:field:invalid-page) for an out-of-range page.
+request_tracing:
+  header: x-fapi-interaction-id
+  behaviour: >-
+    An RFC 4122 UUID interaction id. If supplied by the client it is echoed on the
+    response; if absent the data holder generates one. Observed on the live PRD
+    response. Used for end-to-end correlation and support/troubleshooting.
+filtering:
+  - {name: effective, values: [CURRENT, FUTURE, ALL], default: CURRENT, description: Filter products by effective window}
+  - {name: updated-since, description: Only include products updated after this DateTimeString}
+  - {name: brand, description: Filter by a specific brand}
+  - {name: product-category, description: Filter by BankingProductCategoryV2 enum value}
+error_envelope:
+  schema: ResponseErrorListV2
+  format: cds-response-error-list-v2
+  reference: errors/newcastle-permanent-problem-types.yml
+idempotency:
+  supported: false
+  reason: Public PRD surface exposes only safe GET operations; no idempotency-key contract applies.
+rate_limiting:
+  documented: >-
+    Rate limiting for CDR is governed by the DSB Non-Functional Requirements
+    (NFRs); the unauthenticated PRD tier and its traffic thresholds are defined
+    by the Consumer Data Standards rather than a bank-specific policy. No
+    bank-published rate-limit response headers were confirmed on the public PRD.
+content_type:
+  request: application/json
+  response: application/json
+cross_links:
+  errors: errors/newcastle-permanent-problem-types.yml
+  authentication: authentication/newcastle-permanent-authentication.yml
+  lifecycle: lifecycle/newcastle-permanent-lifecycle.yml

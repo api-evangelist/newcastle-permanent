@@ -1,0 +1,68 @@
+generated: '2026-07-20'
+method: searched
+source: https://openbank.newcastlepermanent.com.au/.well-known/openid-configuration
+docs: https://consumerdatastandardsaustralia.github.io/standards/#security-profile
+notes: >-
+  Newcastle Permanent is a Consumer Data Right (CDR) data holder. Its public API
+  surface has two distinct authentication tiers. The OpenAPI in this repo (the
+  shared DSB CDR Banking API v1.36.0) declares NO securitySchemes because the
+  standard defers the security profile to the CDS "Security Profile" and the
+  ADR/InfoSec conformance regime rather than in-spec securitySchemes. The
+  data-sharing tier below was confirmed by harvesting the bank's live OpenID
+  Connect discovery document (issuer/PAR/registration endpoints, private_key_jwt),
+  cross-referenced with the confirmed live public PRD behaviour.
+summary:
+  tiers: [public-prd, cdr-consumer-data-sharing]
+  types: [none, oauth2, openIdConnect, mutualTLS]
+  oauth2_flows: [authorizationCode]
+tiers:
+  - name: public-prd
+    scope: Product Reference Data (GET /banking/products, GET /banking/products/{productId})
+    auth: none
+    detail: >-
+      Public, unauthenticated. Confirmed live: HTTP 200 JSON with x-v: 4 and an
+      x-fapi-interaction-id. No credentials, tokens, or client registration are
+      required. An F5 web application firewall requires a browser-like User-Agent
+      and Referer to return the JSON payload (bot mitigation, not authentication).
+  - name: cdr-consumer-data-sharing
+    scope: Consumer data (accounts, balances, transactions, direct debits, scheduled payments, payees) — NOT publicly exposed
+    auth: oauth2 + openIdConnect + mutualTLS
+    security_profile: FAPI (Financial-grade API) as mandated by the CDS Security Profile
+    detail: >-
+      Access requires accreditation as a CDR Accredited Data Recipient (ADR). Uses
+      OAuth2 Authorization Code flow with PKCE, OpenID Connect (with the CDR
+      Consent + Authorisation model / PAR + request objects), and mutual TLS for
+      sender-constrained tokens. Scopes are the standardised CDR banking scopes
+      (e.g. bank:accounts.basic:read, bank:transactions:read) governed by the DSB,
+      not bank-specific. This tier is gated by the CDR register and is not open to
+      unaccredited public callers.
+schemes:
+  - name: none
+    type: none
+    tier: public-prd
+    sources: [openapi/newcastle-permanent-cds-banking-products-openapi.yml]
+  - name: cdr-oauth2
+    type: oauth2
+    flow: authorizationCode
+    pkce: true
+    tier: cdr-consumer-data-sharing
+    authorizationUrl: https://openbank.newcastlepermanent.com.au/oauth2/authorize
+    tokenUrl: https://openbank-secure.newcastlepermanent.com.au/oauth2/token
+    parEndpoint: https://openbank-secure.newcastlepermanent.com.au/api/openbanking/push-authorization/par
+    tokenEndpointAuthMethods: [private_key_jwt]
+    sources: [https://openbank.newcastlepermanent.com.au/.well-known/openid-configuration]
+  - name: cdr-oidc
+    type: openIdConnect
+    profile: FAPI
+    tier: cdr-consumer-data-sharing
+    issuer: https://openbank.newcastlepermanent.com.au
+    openIdConnectUrl: https://openbank.newcastlepermanent.com.au/.well-known/openid-configuration
+    jwksUri: https://openbank.newcastlepermanent.com.au/oauth2/jwks
+    registrationEndpoint: https://openbank-secure.newcastlepermanent.com.au/open-banking/0.2/register
+    sources: [https://openbank.newcastlepermanent.com.au/.well-known/openid-configuration]
+  - name: cdr-mtls
+    type: mutualTLS
+    tier: cdr-consumer-data-sharing
+    detail: Sender-constrained tokens per FAPI; the MTLS server host is documented in the shared CDS contract.
+    sources: [docs]
+scopes_reference: scopes/newcastle-permanent-scopes.yml

@@ -1,0 +1,32 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Newcastle Permanent CDR Banking API
+  version: 1.0.0
+extends: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+actions:
+  - target: $.info
+    update:
+      x-apievangelist-provider: newcastle-permanent
+      x-apievangelist-provider-name: Newcastle Permanent Building Society
+      x-apievangelist-cdr-role: data-holder
+      x-apievangelist-public-surface: product-reference-data
+      x-apievangelist-spec-provenance: dsb-cds-standard
+      x-apievangelist-notes: >-
+        This is the shared DSB Consumer Data Standards CDR Banking API (v1.36.0).
+        Only GET /banking/products and GET /banking/products/{productId} are
+        exposed publicly and unauthenticated by Newcastle Permanent; all other
+        operations require CDR accredited-data-recipient authorisation.
+  - target: $.servers
+    update:
+      - description: Live public Product Reference Data (Newcastle Permanent)
+        url: https://openbank.newcastlepermanent.com.au/cds-au/v1
+        x-apievangelist-confirmed-live: true
+  - target: $.paths['/banking/products'].get
+    update:
+      x-apievangelist-public: true
+      x-apievangelist-auth: none
+      x-apievangelist-confirmed-live: '2026-07-20'
+  - target: $.paths['/banking/products/{productId}'].get
+    update:
+      x-apievangelist-public: true
+      x-apievangelist-auth: none

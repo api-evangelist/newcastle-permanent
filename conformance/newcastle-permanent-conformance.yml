@@ -1,0 +1,51 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+docs: https://consumerdatastandardsaustralia.github.io/standards/
+notes: >-
+  Standards conformance asserted for Newcastle Permanent's public CDR PRD API,
+  derived from the shared DSB Consumer Data Standards contract (v1.36.0) it
+  conforms to, plus the confirmed live behaviour. Conformance to CDR/FAPI/OIDC
+  for the consumer-data-sharing tier is documented by the standard; those tiers
+  are not publicly exposed but are part of the data holder's obligations.
+standards:
+  - id: cdr-banking-prd
+    conforms: true
+    evidence: >-
+      Live GET /banking/products returned HTTP 200 with a data.products array,
+      meta.totalRecords 41, x-v: 4, and x-fapi-interaction-id per the Consumer
+      Data Standards Product Reference Data contract.
+  - id: consumer-data-standards
+    conforms: true
+    evidence: OpenAPI is the shared DSB CDR Banking API specification v1.36.0.
+  - id: cdr-versioning-headers
+    conforms: true
+    evidence: Endpoints require x-v request header and return x-v response header per CDS header conventions.
+  - id: cds-error-model
+    conforms: true
+    evidence: 4xx responses use the ResponseErrorListV2 envelope with CDS error-code URNs.
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: Uses the CDS ResponseErrorListV2 envelope, not application/problem+json.
+  - id: standard-pagination
+    conforms: true
+    evidence: page / page-size query params with meta.totalRecords/totalPages and RFC-style links.
+  - id: oauth2
+    conforms: true
+    tier: cdr-consumer-data-sharing
+    evidence: Live OIDC discovery doc advertises authorization_endpoint/token_endpoint with response_types [code] and OAuth2 Authorization Code flow.
+  - id: openid-connect
+    conforms: true
+    tier: cdr-consumer-data-sharing
+    evidence: Live /.well-known/openid-configuration present with issuer, jwks_uri, and CDR scopes_supported.
+  - id: fapi
+    conforms: true
+    tier: cdr-consumer-data-sharing
+    evidence: OIDC discovery advertises a pushed_authorization_request_endpoint (PAR) and token_endpoint_auth_methods_supported [private_key_jwt], consistent with the FAPI profile the CDS mandates.
+  - id: cdr-dynamic-client-registration
+    conforms: true
+    tier: cdr-consumer-data-sharing
+    evidence: registration_endpoint (open-banking/0.2/register) and cdr:registration scope advertised by the live discovery document.
+  - id: idempotency
+    conforms: false
+    evidence: Public PRD exposes only safe GET operations; no idempotency contract.

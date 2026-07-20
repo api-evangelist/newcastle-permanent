@@ -1,0 +1,35 @@
+generated: '2026-07-20'
+method: searched
+source: live probes of /.well-known/* on Newcastle Permanent hosts
+hosts:
+  - host: https://openbank.newcastlepermanent.com.au
+    documents:
+      - path: /.well-known/openid-configuration
+        status: 200
+        content_type: application/json
+        file: newcastle-permanent-openid-configuration.json
+        note: >-
+          Genuine OpenID Connect / OAuth2 discovery document for the CDR data-holder
+          authorization server. Exposes issuer, authorization/token/JWKS/PAR/registration
+          endpoints, private_key_jwt auth, and the full CDR banking scope set.
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+  - host: https://developer.newcastlepermanent.com.au
+    documents:
+      - path: /.well-known/security.txt
+        status: 200
+        content_type: text/html
+        note: Soft-200 SPA shell (Angular app), not a real security.txt — no file saved.
+      - path: /.well-known/openid-configuration
+        status: 200
+        content_type: text/html
+        note: Soft-200 SPA shell, not a discovery document — no file saved.
+  - host: https://www.newcastlepermanent.com.au
+    documents:
+      - path: /.well-known/security.txt
+        status: 403
+        note: Akamai bot protection blocks non-browser clients.

@@ -1,0 +1,92 @@
+{
+  "acr_values_supported": [
+    "urn:cds.au:cdr:2"
+  ],
+  "authorization_endpoint": "https://openbank.newcastlepermanent.com.au/oauth2/authorize",
+  "authorization_signing_alg_values_supported": [
+    "PS256"
+  ],
+  "cdr_arrangement_revocation_endpoint": "https://openbank-secure.newcastlepermanent.com.au/arrangements/1.0.0/revoke",
+  "check_session_iframe": "https://openbankconsent.newcastlepermanent.com.au/oidc/checksession",
+  "claims_parameter_supported": true,
+  "claims_supported": [
+    "name",
+    "given_name",
+    "family_name",
+    "acr",
+    "auth_time",
+    "sub",
+    "refresh_token_expires_at",
+    "sharing_expires_at",
+    "updated_at"
+  ],
+  "code_challenge_methods_supported": [
+    "S256"
+  ],
+  "end_session_endpoint": "https://openbankconsent.newcastlepermanent.com.au/oidc/logout",
+  "grant_types_supported": [
+    "authorization_code",
+    "client_credentials",
+    "refresh_token"
+  ],
+  "id_token_encryption_alg_values_supported": [
+    "RSA-OAEP"
+  ],
+  "id_token_encryption_enc_values_supported": [
+    "A128CBC-HS256",
+    "A256GCM"
+  ],
+  "id_token_signing_alg": [
+    "PS256"
+  ],
+  "id_token_signing_alg_values_supported": [
+    "PS256"
+  ],
+  "introspection_endpoint": "https://openbank-secure.newcastlepermanent.com.au/oauth2/introspect",
+  "issuer": "https://openbank.newcastlepermanent.com.au",
+  "jwks_uri": "https://openbank.newcastlepermanent.com.au/oauth2/jwks",
+  "pushed_authorization_request_endpoint": "https://openbank-secure.newcastlepermanent.com.au/api/openbanking/push-authorization/par",
+  "registration_endpoint": "https://openbank-secure.newcastlepermanent.com.au/open-banking/0.2/register",
+  "request_object_signing_alg_values_supported": [
+    "PS256"
+  ],
+  "request_parameter_supported": true,
+  "require_pushed_authorization_requests": true,
+  "response_modes_supported": [
+    "fragment",
+    "jwt"
+  ],
+  "response_types_supported": [
+    "code"
+  ],
+  "revocation_endpoint": "https://openbank-secure.newcastlepermanent.com.au/oauth2/revoke",
+  "scopes_supported": [
+    "openid",
+    "profile",
+    "common:customer.basic:read",
+    "common:customer.detail:read",
+    "bank:regular_payments:read",
+    "bank:accounts.detail:read",
+    "bank:accounts.basic:read",
+    "bank:transactions:read",
+    "bank:payees:read",
+    "admin:metrics.basic:read",
+    "admin:metadata:update",
+    "cdr:registration"
+  ],
+  "subject_types_supported": [
+    "pairwise"
+  ],
+  "tls_client_certificate_bound_access_tokens": true,
+  "token_endpoint": "https://openbank-secure.newcastlepermanent.com.au/oauth2/token",
+  "token_endpoint_auth_methods_supported": [
+    "private_key_jwt"
+  ],
+  "token_endpoint_auth_signing_alg_values_supported": [
+    "PS256"
+  ],
+  "userinfo_endpoint": "https://openbank-secure.newcastlepermanent.com.au/oauth2/userinfo",
+  "userinfo_signing_alg_values_supported": [
+    "PS256"
+  ]
+}

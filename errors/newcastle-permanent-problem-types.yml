@@ -1,0 +1,84 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+docs: https://consumerdatastandardsaustralia.github.io/standards/#error-codes
+format: cds-response-error-list-v2
+notes: >-
+  Newcastle Permanent's public Product Reference Data (PRD) API returns the
+  Consumer Data Standards (DSB) error envelope ResponseErrorListV2, NOT RFC 9457
+  problem+json. The envelope is an object with an `errors` array; each error has
+  `code` (a CDS error-code URN, or an application-specific code with the extended
+  URN in `meta`), `title` (a stable human-readable summary), `detail` (an
+  occurrence-specific explanation), and an optional `meta` object. The problem
+  types below are derived from the 400/404/406/422 responses declared on the
+  banking product operations; the URN codes are the DSB standardised error codes
+  the anchors reference.
+envelope:
+  schema: ResponseErrorListV2
+  shape: '{ "errors": [ { "code": "<urn>", "title": "...", "detail": "...", "meta": { ... } } ] }'
+  fields:
+    - {name: code, required: true, description: CDS error-code URN (or app-specific code)}
+    - {name: title, required: true, description: Stable human-readable summary of the problem}
+    - {name: detail, required: true, description: Occurrence-specific explanation}
+    - {name: meta, required: false, description: Conditional object carrying the extended URN and/or field/header references}
+problems:
+  - status: 400
+    code: urn:au-cds:error:cds:field:invalid
+    title: Invalid Field
+    anchor: '#error-400-field-invalid'
+    remediation: Correct the malformed field value in the request and retry.
+    source_operations: [listBankingProducts, getBankingProductDetail]
+  - status: 400
+    code: urn:au-cds:error:cds:field:missing
+    title: Missing Required Field
+    anchor: '#error-400-field-missing'
+    remediation: Supply the required field and retry.
+    source_operations: [listBankingProducts, getBankingProductDetail]
+  - status: 400
+    code: urn:au-cds:error:cds:header:missing
+    title: Missing Required Header
+    anchor: '#error-400-header-missing'
+    remediation: Include the mandatory x-v request header and retry.
+    source_operations: [listBankingProducts, getBankingProductDetail]
+  - status: 400
+    code: urn:au-cds:error:cds:header:invalid-version
+    title: Invalid Version
+    anchor: '#error-400-header-invalid-version'
+    remediation: Provide a positive integer x-v (and optional x-min-v) header value.
+    source_operations: [listBankingProducts, getBankingProductDetail]
+  - status: 400
+    code: urn:au-cds:error:cds:field:invalid-date-time
+    title: Invalid Date
+    anchor: '#error-400-field-invalid-date-time'
+    remediation: Format the updated-since value as a valid CDS DateTimeString (RFC 3339).
+    source_operations: [listBankingProducts]
+  - status: 400
+    code: urn:au-cds:error:cds:field:invalid-page-size
+    title: Invalid Page Size
+    anchor: '#error-400-field-invalid-page-size'
+    remediation: Provide a positive integer page-size within the allowed range.
+    source_operations: [listBankingProducts]
+  - status: 404
+    code: urn:au-cds:error:cds:resource:invalid
+    title: Invalid Resource
+    anchor: '#error-404-resource-invalid'
+    remediation: Verify the productId; the requested resource does not exist.
+    source_operations: [getBankingProductDetail]
+  - status: 404
+    code: urn:au-cds:error:cds:resource:not-implemented
+    title: Resource Not Implemented
+    anchor: '#error-404-resource-not-implemented'
+    remediation: The requested resource/endpoint is not implemented by this data holder.
+    source_operations: [getBankingProductDetail]
+  - status: 406
+    code: urn:au-cds:error:cds:header:unsupported-version
+    title: Unsupported Version
+    anchor: '#error-406-header-unsupported-version'
+    remediation: Request a version the endpoint supports between x-min-v and x-v.
+    source_operations: [listBankingProducts, getBankingProductDetail]
+  - status: 422
+    code: urn:au-cds:error:cds:field:invalid-page
+    title: Invalid Page
+    anchor: '#error-422-field-invalid-page'
+    remediation: Request a page number that exists within the result set.
+    source_operations: [listBankingProducts]

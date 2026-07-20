@@ -1,0 +1,39 @@
+generated: '2026-07-20'
+method: searched
+source: https://openbank.newcastlepermanent.com.au/.well-known/openid-configuration
+docs: https://consumerdatastandardsaustralia.github.io/standards/#security-profile
+notes: >-
+  OAuth2 / OpenID Connect scopes advertised by Newcastle Permanent's live CDR
+  authorization server, harvested verbatim from its OpenID Connect discovery
+  document (scopes_supported). These are the standardised CDR banking + common
+  scopes; they gate the accredited-data-recipient (ADR) consumer-data-sharing
+  surface, NOT the public Product Reference Data endpoints (which are
+  unauthenticated). token_endpoint_auth_methods_supported = private_key_jwt and a
+  pushed_authorization_request_endpoint are present, consistent with the FAPI
+  security profile the CDS mandates.
+schemes:
+  - name: cdr-oidc
+    type: openIdConnect
+    issuer: https://openbank.newcastlepermanent.com.au
+    flows:
+      - flow: authorizationCode
+        authorizationUrl: https://openbank.newcastlepermanent.com.au/oauth2/authorize
+        tokenUrl: https://openbank-secure.newcastlepermanent.com.au/oauth2/token
+        parEndpoint: https://openbank-secure.newcastlepermanent.com.au/api/openbanking/push-authorization/par
+        registrationEndpoint: https://openbank-secure.newcastlepermanent.com.au/open-banking/0.2/register
+        jwksUri: https://openbank.newcastlepermanent.com.au/oauth2/jwks
+        tokenEndpointAuthMethods: [private_key_jwt]
+    sources: [https://openbank.newcastlepermanent.com.au/.well-known/openid-configuration]
+scopes:
+  - {scope: openid, description: OpenID Connect authentication}
+  - {scope: profile, description: End-user profile claims}
+  - {scope: 'common:customer.basic:read', description: Read basic customer information (name, occupation)}
+  - {scope: 'common:customer.detail:read', description: Read detailed customer information (contact details)}
+  - {scope: 'bank:accounts.basic:read', description: Read basic banking account information}
+  - {scope: 'bank:accounts.detail:read', description: Read detailed banking account information}
+  - {scope: 'bank:transactions:read', description: Read banking account transactions}
+  - {scope: 'bank:payees:read', description: Read saved payees}
+  - {scope: 'bank:regular_payments:read', description: Read direct debits and scheduled/regular payments}
+  - {scope: 'admin:metrics.basic:read', description: CDR admin metrics (Get Metrics) for the data holder}
+  - {scope: 'admin:metadata:update', description: CDR admin metadata update (register metadata refresh)}
+  - {scope: 'cdr:registration', description: Dynamic client registration for CDR software products}

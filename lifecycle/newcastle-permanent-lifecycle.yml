@@ -1,0 +1,41 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+docs: https://consumerdatastandardsaustralia.github.io/standards/#versioning
+notes: >-
+  Lifecycle and versioning posture for Newcastle Permanent's public CDR PRD API,
+  derived from the shared DSB Consumer Data Standards contract. CDR APIs version
+  per-endpoint via the x-v header rather than via the URL, and the standard itself
+  carries a formal, dated version history and deprecation/obsolescence regime.
+versioning:
+  scheme: header-per-endpoint
+  request_header: x-v
+  min_header: x-min-v
+  response_header: x-v
+  standard_version: '1.36.0'
+  current_endpoint_versions:
+    listBankingProducts: '5'
+    getBankingProductDetail: '7'
+  observed_live: {endpoint: GET /banking/products, x-v: 4}
+  docs: https://consumerdatastandardsaustralia.github.io/standards/#versioning
+deprecation:
+  model: cds-obsolete-versions
+  detail: >-
+    The CDS versioning regime supersedes prior endpoint versions and publishes
+    "obsolete versions" of each endpoint (the products spec links obsolete v1-v4).
+    A future-effective / obsolescence window (effectiveFrom / effectiveTo and the
+    `effective` filter) lets products be introduced or retired without a payload
+    delete. Version retirement is announced through the DSB standards maintenance
+    and change-management process.
+  obsolete_versions_documented: true
+  policy_url: https://consumerdatastandardsaustralia.github.io/standards/#versioning
+sla:
+  model: cdr-nfr
+  detail: >-
+    Availability and performance targets for CDR data holders are set by the DSB
+    Non-Functional Requirements (NFRs) rather than a bank-specific SLA page.
+  docs: https://consumerdatastandardsaustralia.github.io/standards/#non-functional-requirements
+status_page:
+  found: false
+  detail: No bank-specific public status page was confirmed for the NPBS CDR surface.
+deprecated_operations: []

@@ -52,6 +52,8 @@ apis:
     200 JSON response carrying a data.products array, an x-v response version header, and
     x-fapi-interaction-id, currently serving 41 products at endpoint version x-v 4.
 common:
+- type: DomainSecurity
+  url: security/newcastle-permanent-domain-security.yml
 - type: Website
   url: https://www.newcastlepermanent.com.au/
 - type: DeveloperPortal
@@ -60,6 +62,44 @@ common:
   url: https://consumerdatastandardsaustralia.github.io/standards/
 - type: LinkedIn
   url: https://www.linkedin.com/company/newcastle-permanent
+- type: Sandbox
+  url: https://developer.newcastlepermanent.com.au/
+- type: Authentication
+  url: authentication/newcastle-permanent-authentication.yml
+- type: OAuthScopes
+  url: scopes/newcastle-permanent-scopes.yml
+- type: WellKnown
+  url: well-known/newcastle-permanent-well-known.yml
+- type: Conventions
+  url: conventions/newcastle-permanent-conventions.yml
+- type: ErrorCatalog
+  url: errors/newcastle-permanent-problem-types.yml
+- type: Conformance
+  url: conformance/newcastle-permanent-conformance.yml
+- type: Lifecycle
+  url: lifecycle/newcastle-permanent-lifecycle.yml
+- type: Deprecation
+  url: https://consumerdatastandardsaustralia.github.io/standards/#versioning
+- type: DataModel
+  url: data-model/newcastle-permanent-data-model.yml
+- type: MCPServer
+  url: mcp/newcastle-permanent-mcp.yml
+- type: Overlay
+  url: overlays/newcastle-permanent-cds-banking-products-overlay.yaml
+- type: LLMsTxt
+  url: llms/newcastle-permanent-llms.txt
+- type: AgentSkill
+  url: skills/newcastle-permanent-browse-products.md
+- type: Compliance
+  url: https://www.newcastlepermanent.com.au/cdr-policy
+- type: TermsOfService
+  url: https://www.newcastlepermanent.com.au/terms-of-use
+- type: PrivacyPolicy
+  url: https://www.newcastlepermanent.com.au/privacy-policy
+- type: Support
+  url: https://www.newcastlepermanent.com.au/contact-us
+- type: OpenBanking
+  url: https://www.newcastlepermanent.com.au/tools-and-services/digital-banking/open-banking
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
