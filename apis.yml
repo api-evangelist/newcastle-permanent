@@ -24,7 +24,7 @@ tags:
 - Mutual
 - Australia
 created: '2026-07-20'
-modified: '2026-07-20'
+modified: '2026-07-21'
 specificationVersion: '0.19'
 apis:
 - aid: newcastle-permanent:newcastle-permanent-cds-banking-products-api
@@ -35,6 +35,7 @@ apis:
   - Product Reference Data
   - Banking
   - Australia
+  - Public
   image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://developer.newcastlepermanent.com.au/
   baseURL: https://openbank.newcastlepermanent.com.au/cds-au/v1/banking/products
@@ -43,6 +44,8 @@ apis:
     type: Documentation
   - url: https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api_get-products
     type: APIReference
+  - url: openapi/newcastle-permanent-products-openapi.json
+    type: OpenAPI
   - url: openapi/newcastle-permanent-cds-banking-products-openapi.yml
     type: OpenAPI
   description: Live, public, unauthenticated Consumer Data Right (CDR) Product Reference
@@ -50,7 +53,156 @@ apis:
     savings, transaction accounts, home loans, credit cards and more) under the standard
     Consumer Data Standards path /cds-au/v1/banking/products. Confirmed live with an HTTP
     200 JSON response carrying a data.products array, an x-v response version header, and
-    x-fapi-interaction-id, currently serving 41 products at endpoint version x-v 4.
+    x-fapi-interaction-id, currently serving 41 products at endpoint version x-v 4. The
+    wired products OpenAPI is the bank's own export harvested verbatim from its developer
+    portal (apiId 16, "Products"); the sibling cds-banking OpenAPI is the shared DSB
+    Consumer Data Standards Banking API v1.36.0 for the full family surface.
+- aid: newcastle-permanent:newcastle-permanent-cdr-accounts-balances-api
+  name: Newcastle Permanent Building Society CDR Accounts & Balances API
+  tags:
+  - CDR
+  - Open Banking
+  - Accounts
+  - Balances
+  - Banking
+  - Australia
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://developer.newcastlepermanent.com.au/
+  baseURL: https://openbank-secure.newcastlepermanent.com.au/cds-au/v1/banking/accounts
+  properties:
+  - url: https://developer.newcastlepermanent.com.au/
+    type: Documentation
+  - url: https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api_get-accounts
+    type: APIReference
+  - url: openapi/newcastle-permanent-customer-data-openapi.json
+    type: OpenAPI
+  - url: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+    type: OpenAPI
+  description: Consumer-authorized Consumer Data Right (CDR) Banking API surface for
+    retrieving a consented customer's accounts and balances, covering Get Accounts, Get
+    Bulk Balances, Get Account Balance and Get Account Detail under the Consumer Data
+    Standards paths /cds-au/v1/banking/accounts, /banking/accounts/balances and
+    /banking/accounts/{accountId}/balance. Unlike the public Product Reference Data API,
+    these endpoints require an accredited data recipient (ADR) acting under an active
+    CDR consent and are served over Newcastle Permanent's secured open-banking host
+    (openbank-secure), so they are not callable anonymously. The wired OpenAPI is the
+    bank's own portal export (apiId 17, "Customer Data") plus the shared DSB Consumer
+    Data Standards Banking API v1.36.0.
+- aid: newcastle-permanent:newcastle-permanent-cdr-transactions-api
+  name: Newcastle Permanent Building Society CDR Transactions API
+  tags:
+  - CDR
+  - Open Banking
+  - Transactions
+  - Banking
+  - Australia
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://developer.newcastlepermanent.com.au/
+  baseURL: https://openbank-secure.newcastlepermanent.com.au/cds-au/v1/banking/accounts/{accountId}/transactions
+  properties:
+  - url: https://developer.newcastlepermanent.com.au/
+    type: Documentation
+  - url: https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api_get-transactions-for-account
+    type: APIReference
+  - url: openapi/newcastle-permanent-customer-data-openapi.json
+    type: OpenAPI
+  - url: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+    type: OpenAPI
+  description: Consumer-authorized Consumer Data Right (CDR) Banking API surface for
+    retrieving a consented customer's transaction history, covering Get Transactions For
+    Account and Get Transaction Detail under the Consumer Data Standards paths
+    /cds-au/v1/banking/accounts/{accountId}/transactions and
+    /banking/accounts/{accountId}/transactions/{transactionId}. These endpoints require
+    an accredited data recipient operating under an active CDR consent and are served
+    over Newcastle Permanent's secured open-banking host (openbank-secure); they are not
+    callable anonymously. Backed by the bank's own portal Customer Data export (apiId 17)
+    and the shared DSB Consumer Data Standards Banking API v1.36.0.
+- aid: newcastle-permanent:newcastle-permanent-cdr-direct-debits-scheduled-payments-api
+  name: Newcastle Permanent Building Society CDR Direct Debits & Scheduled Payments API
+  tags:
+  - CDR
+  - Open Banking
+  - Direct Debits
+  - Scheduled Payments
+  - Banking
+  - Australia
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://developer.newcastlepermanent.com.au/
+  baseURL: https://openbank-secure.newcastlepermanent.com.au/cds-au/v1/banking/accounts/direct-debits
+  properties:
+  - url: https://developer.newcastlepermanent.com.au/
+    type: Documentation
+  - url: https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api_get-direct-debits-for-account
+    type: APIReference
+  - url: openapi/newcastle-permanent-customer-data-openapi.json
+    type: OpenAPI
+  - url: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+    type: OpenAPI
+  description: Consumer-authorized Consumer Data Right (CDR) Banking API surface for a
+    consented customer's regular payment arrangements, covering Get Direct Debits For
+    Account, Get Bulk Direct Debits, Get Scheduled Payments For Account and Get Bulk
+    Scheduled Payments under the Consumer Data Standards paths
+    /cds-au/v1/banking/accounts/{accountId}/direct-debits, /banking/accounts/direct-debits,
+    /banking/accounts/{accountId}/payments/scheduled and /banking/payments/scheduled.
+    These read-only endpoints require an accredited data recipient under an active CDR
+    consent and are served over the secured open-banking host (openbank-secure); they
+    are not callable anonymously. Backed by the bank's own portal Customer Data export
+    (apiId 17) and the shared DSB Consumer Data Standards Banking API v1.36.0.
+- aid: newcastle-permanent:newcastle-permanent-cdr-payees-api
+  name: Newcastle Permanent Building Society CDR Payees API
+  tags:
+  - CDR
+  - Open Banking
+  - Payees
+  - Banking
+  - Australia
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://developer.newcastlepermanent.com.au/
+  baseURL: https://openbank-secure.newcastlepermanent.com.au/cds-au/v1/banking/payees
+  properties:
+  - url: https://developer.newcastlepermanent.com.au/
+    type: Documentation
+  - url: https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api_get-payees
+    type: APIReference
+  - url: openapi/newcastle-permanent-customer-data-openapi.json
+    type: OpenAPI
+  - url: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+    type: OpenAPI
+  description: Consumer-authorized Consumer Data Right (CDR) Banking API surface for a
+    consented customer's saved payees, covering Get Payees and Get Payee Detail under the
+    Consumer Data Standards paths /cds-au/v1/banking/payees and /banking/payees/{payeeId}.
+    These read-only endpoints require an accredited data recipient operating under an
+    active CDR consent and are served over Newcastle Permanent's secured open-banking host
+    (openbank-secure); they are not callable anonymously. Backed by the bank's own portal
+    Customer Data export (apiId 17) and the shared DSB Consumer Data Standards Banking API
+    v1.36.0.
+- aid: newcastle-permanent:newcastle-permanent-cdr-common-customer-api
+  name: Newcastle Permanent Building Society CDR Common Customer API
+  tags:
+  - CDR
+  - Open Banking
+  - Customer
+  - Common
+  - Banking
+  - Australia
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://developer.newcastlepermanent.com.au/
+  baseURL: https://openbank-secure.newcastlepermanent.com.au/cds-au/v1/common/customer
+  properties:
+  - url: https://developer.newcastlepermanent.com.au/
+    type: Documentation
+  - url: https://consumerdatastandardsaustralia.github.io/standards/#common-apis_get-customer
+    type: APIReference
+  - url: openapi/newcastle-permanent-customer-data-openapi.json
+    type: OpenAPI
+  description: Consumer-authorized Consumer Data Right (CDR) Common API surface for
+    retrieving the consented customer's own identity and contact details, covering Get
+    Customer and Get Customer Detail under the Consumer Data Standards paths
+    /cds-au/v1/common/customer and /common/customer/detail. These endpoints are
+    documented in Newcastle Permanent's own developer-portal "Customer Data" product
+    (apiId 17) export, require an accredited data recipient acting under an active CDR
+    consent, and are served over the secured open-banking host (openbank-secure); they
+    are not callable anonymously. The wired OpenAPI is the bank's verbatim portal export.
 common:
 - type: DomainSecurity
   url: security/newcastle-permanent-domain-security.yml
@@ -58,8 +210,14 @@ common:
   url: https://www.newcastlepermanent.com.au/
 - type: DeveloperPortal
   url: https://developer.newcastlepermanent.com.au/
+- type: GettingStarted
+  url: https://developer.newcastlepermanent.com.au/public/apis
 - type: Documentation
   url: https://consumerdatastandardsaustralia.github.io/standards/
+- type: APIReference
+  url: https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api
+- type: Email
+  url: mailto:OpenBankingSupport@newcastlepermanent.com.au
 - type: LinkedIn
   url: https://www.linkedin.com/company/newcastle-permanent
 - type: Sandbox
