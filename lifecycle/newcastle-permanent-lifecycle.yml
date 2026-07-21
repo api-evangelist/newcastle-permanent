@@ -1,6 +1,6 @@
-generated: '2026-07-20'
-method: derived
-source: openapi/newcastle-permanent-cds-banking-products-openapi.yml
+generated: '2026-07-21'
+method: searched
+source: openapi/newcastle-permanent-cds-banking-products-openapi.yml + live CDR Discovery API probe
 docs: https://consumerdatastandardsaustralia.github.io/standards/#versioning
 notes: >-
   Lifecycle and versioning posture for Newcastle Permanent's public CDR PRD API,
@@ -36,6 +36,22 @@ sla:
     Non-Functional Requirements (NFRs) rather than a bank-specific SLA page.
   docs: https://consumerdatastandardsaustralia.github.io/standards/#non-functional-requirements
 status_page:
-  found: false
-  detail: No bank-specific public status page was confirmed for the NPBS CDR surface.
+  found: true
+  type: cdr-discovery-api
+  detail: >-
+    Newcastle Permanent publishes its operational status as the CDR-mandated,
+    public, unauthenticated Consumer Data Standards Discovery API. Both endpoints
+    were confirmed live (HTTP 200) on 2026-07-21. GET /discovery/status returned
+    {"data":{"status":"OK","updateTime":"2026-07-21T16:30:18.326Z"}} and
+    GET /discovery/outages returned an empty outages array. This is the machine-
+    readable service-status surface every CDR data holder must expose; there is no
+    separate bank-branded HTML status page.
+  status_endpoint: https://openbank.newcastlepermanent.com.au/cds-au/v1/discovery/status
+  outages_endpoint: https://openbank.newcastlepermanent.com.au/cds-au/v1/discovery/outages
+  observed:
+    status: OK
+    update_time: '2026-07-21T16:30:18.326Z'
+    outages: []
+    probed: '2026-07-21'
+  docs: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
 deprecated_operations: []

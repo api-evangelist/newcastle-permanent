@@ -236,6 +236,8 @@ common:
   url: conformance/newcastle-permanent-conformance.yml
 - type: Lifecycle
   url: lifecycle/newcastle-permanent-lifecycle.yml
+- type: StatusPage
+  url: https://openbank.newcastlepermanent.com.au/cds-au/v1/discovery/status
 - type: Deprecation
   url: https://consumerdatastandardsaustralia.github.io/standards/#versioning
 - type: DataModel
