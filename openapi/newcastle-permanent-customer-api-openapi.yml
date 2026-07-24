@@ -1,0 +1,634 @@
+openapi: 3.0.3
+info:
+  contact:
+    email: contact@dsb.gov.au
+    name: Data Standards Body
+    url: https://dsb.gov.au/
+  description: Specifications for resource endpoints applicable to data holders in the Banking sector.
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  title: CDR Banking Accounts Customer API
+  version: 1.36.0
+servers:
+- description: MTLS
+  url: https://mtls.dh.example.com/cds-au/v1
+tags:
+- name: Customer
+paths:
+  /common/customer:
+    get:
+      tags:
+      - Customer
+      summary: Get Customer
+      description: Obtain basic information on the customer that has authorised the current session
+      operationId: getCustomer
+      parameters:
+      - name: x-v
+        in: header
+        description: Version of the API end point requested by the client. Must be set to a positive integer. The data holder should respond with the highest supported version between [x-min-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) and [x-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers). If the value of [x-min-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) is equal to or higher than the value of [x-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) then the [x-min-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) header should be treated as absent. If all versions requested are not supported then the data holder should respond with a 406 Not Acceptable. See [HTTP Headers](https://consumerdatastandardsaustralia.github.io/standards/#http-headers)
+        required: true
+        schema:
+          type: string
+          default: '1'
+      - name: x-min-v
+        in: header
+        description: Minimum version of the API end point requested by the client. Must be set to a positive integer if provided. The data holder should respond with the highest supported version between [x-min-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) and [x-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers). If all versions requested are not supported then the data holder should respond with a 406 Not Acceptable.
+        schema:
+          type: string
+      - name: x-fapi-interaction-id
+        in: header
+        description: An [RFC4122](https://tools.ietf.org/html/rfc4122) UUID used as a correlation id. If provided, the data holder must play back this value in the x-fapi-interaction-id response header. If not provided a [RFC4122] UUID value is required to be provided in the response header to track the interaction.
+        schema:
+          type: string
+          format: uuid
+      - name: x-fapi-auth-date
+        in: header
+        description: The time when the customer last logged in to the data recipient. Required for all resource calls (customer present and unattended). Not to be included for unauthenticated calls.
+        schema:
+          type: string
+      - name: x-fapi-customer-ip-address
+        in: header
+        description: The customer's original IP address if the customer is currently logged in to the data recipient. The presence of this header indicates that the API is being called in a customer present context. Not to be included for unauthenticated calls.
+        schema:
+          type: string
+      - name: x-cds-client-headers
+        in: header
+        description: The customer's original standard http headers [Base64](https://consumerdatastandardsaustralia.github.io/standards/#common-field-types) encoded, including the original User Agent header, if the customer is currently logged in to the data recipient. Mandatory for customer present calls.  Not required for unattended or unauthenticated calls.
+        schema:
+          pattern: ^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$
+          type: string
+          x-cds-type: Base64
+        x-cds-type: Base64
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-v:
+              description: The [version](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) of the API end point that the data holder has responded with.
+              schema:
+                type: string
+            x-fapi-interaction-id:
+              description: An [RFC4122](https://tools.ietf.org/html/rfc4122) UUID used as a correlation id. If provided, the data holder must play back this value in the x-fapi-interaction-id response header. If not provided a [RFC4122] UUID value is required to be provided in the response header to track the interaction.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseCommonCustomer'
+        '400':
+          description: Bad Request
+          headers:
+            x-fapi-interaction-id:
+              description: An [RFC4122](https://tools.ietf.org/html/rfc4122) UUID used as a correlation id. If provided, the data holder must play back this value in the x-fapi-interaction-id response header. If not provided a [RFC4122] UUID value is required to be provided in the response header to track the interaction.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseErrorList'
+        '406':
+          description: Not Acceptable
+          headers:
+            x-fapi-interaction-id:
+              description: An [RFC4122](https://tools.ietf.org/html/rfc4122) UUID used as a correlation id. If provided, the data holder must play back this value in the x-fapi-interaction-id response header. If not provided a [RFC4122] UUID value is required to be provided in the response header to track the interaction.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseErrorList'
+      security:
+      - PSUOAuth2Security:
+        - common:customer.basic:read
+      - default:
+        - common:customer.basic:read
+      x-version: '1'
+      x-auth-type: Application User
+      x-throttling-tier: Unlimited
+  /common/customer/detail:
+    get:
+      tags:
+      - Customer
+      summary: Get Customer Detail
+      description: Obtain detailed information on the authorised customer within the current session.
+      operationId: getCustomerDetail
+      parameters:
+      - name: x-v
+        in: header
+        description: Version of the API end point requested by the client. Must be set to a positive integer. The data holder should respond with the highest supported version between [x-min-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) and [x-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers). If the value of [x-min-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) is equal to or higher than the value of [x-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) then the [x-min-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) header should be treated as absent. If all versions requested are not supported then the data holder should respond with a 406 Not Acceptable. See [HTTP Headers](https://consumerdatastandardsaustralia.github.io/standards/#http-headers)
+        required: true
+        schema:
+          type: string
+          default: '2'
+      - name: x-min-v
+        in: header
+        description: Minimum version of the API end point requested by the client. Must be set to a positive integer if provided. The data holder should respond with the highest supported version between [x-min-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) and [x-v](https://consumerdatastandardsaustralia.github.io/standards/#http-headers). If all versions requested are not supported then the data holder should respond with a 406 Not Acceptable.
+        schema:
+          type: string
+      - name: x-fapi-interaction-id
+        in: header
+        description: An [RFC4122](https://tools.ietf.org/html/rfc4122) UUID used as a correlation id. If provided, the data holder must play back this value in the x-fapi-interaction-id response header. If not provided a [RFC4122] UUID value is required to be provided in the response header to track the interaction.
+        schema:
+          type: string
+          format: uuid
+      - name: x-fapi-auth-date
+        in: header
+        description: The time when the customer last logged in to the data recipient. Required for all resource calls (customer present and unattended). Not to be included for unauthenticated calls.
+        schema:
+          type: string
+      - name: x-fapi-customer-ip-address
+        in: header
+        description: The customer's original IP address if the customer is currently logged in to the data recipient. The presence of this header indicates that the API is being called in a customer present context. Not to be included for unauthenticated calls.
+        schema:
+          type: string
+      - name: x-cds-client-headers
+        in: header
+        description: The customer's original standard http headers [Base64](https://consumerdatastandardsaustralia.github.io/standards/#common-field-types) encoded, including the original User Agent header, if the customer is currently logged in to the data recipient. Mandatory for customer present calls.  Not required for unattended or unauthenticated calls.
+        schema:
+          pattern: ^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$
+          type: string
+          x-cds-type: Base64
+        x-cds-type: Base64
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-v:
+              description: The [version](https://consumerdatastandardsaustralia.github.io/standards/#http-headers) of the API end point that the data holder has responded with.
+              schema:
+                type: string
+            x-fapi-interaction-id:
+              description: An [RFC4122](https://tools.ietf.org/html/rfc4122) UUID used as a correlation id. If provided, the data holder must play back this value in the x-fapi-interaction-id response header. If not provided a [RFC4122] UUID value is required to be provided in the response header to track the interaction.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseCommonCustomerDetail'
+        '400':
+          description: Bad Request
+          headers:
+            x-fapi-interaction-id:
+              description: An [RFC4122](https://tools.ietf.org/html/rfc4122) UUID used as a correlation id. If provided, the data holder must play back this value in the x-fapi-interaction-id response header. If not provided a [RFC4122] UUID value is required to be provided in the response header to track the interaction.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseErrorList'
+        '406':
+          description: Not Acceptable
+          headers:
+            x-fapi-interaction-id:
+              description: An [RFC4122](https://tools.ietf.org/html/rfc4122) UUID used as a correlation id. If provided, the data holder must play back this value in the x-fapi-interaction-id response header. If not provided a [RFC4122] UUID value is required to be provided in the response header to track the interaction.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseErrorList'
+      security:
+      - PSUOAuth2Security:
+        - common:customer.detail:read
+      - default:
+        - common:customer.detail:read
+      x-version: '1'
+      x-auth-type: Application User
+      x-throttling-tier: Unlimited
+components:
+  schemas:
+    CommonOrganisation:
+      required:
+      - agentLastName
+      - agentRole
+      - businessName
+      - organisationType
+      type: object
+      properties:
+        lastUpdateTime:
+          type: string
+          description: The date and time that this record was last updated by the customer. If no update has occurred then this date should reflect the initial creation date for the data
+          x-cds-type: DateTimeString
+        agentFirstName:
+          type: string
+          description: The first name of the individual providing access on behalf of the organisation. For people with single names this field need not be present.  The single name should be in the lastName field
+        agentLastName:
+          type: string
+          description: The last name of the individual providing access on behalf of the organisation. For people with single names the single name should be in this field
+        agentRole:
+          type: string
+          description: The role of the individual identified as the agent who is providing authorisation.  Expected to be used for display. Default to Unspecified if the role is not known
+        businessName:
+          type: string
+          description: Name of the organisation
+        legalName:
+          type: string
+          description: Legal name, if different to the business name
+        shortName:
+          type: string
+          description: Short name used for communication, if different to the business name
+        abn:
+          type: string
+          description: Australian Business Number for the organisation
+        acn:
+          type: string
+          description: Australian Company Number for the organisation. Required only if an ACN is applicable for the organisation type
+        isACNCRegistered:
+          type: boolean
+          description: True if registered with the ACNC.  False if not. Absent or null if not confirmed.
+          x-cds-type: Boolean
+        industryCode:
+          type: string
+          description: '[ANZSIC (2006)](http://www.abs.gov.au/anzsic) code for the organisation.'
+        organisationType:
+          type: string
+          description: Legal organisation type
+          enum:
+          - SOLE_TRADER
+          - COMPANY
+          - PARTNERSHIP
+          - TRUST
+          - GOVERNMENT_ENTITY
+          - OTHER
+        registeredCountry:
+          type: string
+          description: Enumeration with values from [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country codes.  Assumed to be AUS if absent
+          x-cds-type: ExternalRef
+        establishmentDate:
+          type: string
+          description: The date the organisation described was established
+          x-cds-type: DateString
+    CommonPhysicalAddressWithPurpose:
+      allOf:
+      - $ref: '#/components/schemas/CommonPhysicalAddress'
+      - required:
+        - purpose
+        type: object
+        properties:
+          purpose:
+            type: string
+            description: Enumeration of values indicating the purpose of the physical address
+            enum:
+            - REGISTERED
+            - MAIL
+            - PHYSICAL
+            - WORK
+            - OTHER
+    CommonOrganisationDetail:
+      allOf:
+      - $ref: '#/components/schemas/CommonOrganisation'
+      - required:
+        - physicalAddresses
+        type: object
+        properties:
+          physicalAddresses:
+            type: array
+            description: Must contain at least one address. One and only one address may have the purpose of REGISTERED. Zero or one, and no more than one, record may have the purpose of MAIL. If zero then the REGISTERED address is to be used for mail
+            items:
+              $ref: '#/components/schemas/CommonPhysicalAddressWithPurpose'
+    CommonPersonDetail:
+      allOf:
+      - $ref: '#/components/schemas/CommonPerson'
+      - required:
+        - emailAddresses
+        - phoneNumbers
+        - physicalAddresses
+        type: object
+        properties:
+          phoneNumbers:
+            type: array
+            description: Array is mandatory but may be empty if no phone numbers are held
+            items:
+              $ref: '#/components/schemas/CommonPhoneNumber'
+          emailAddresses:
+            type: array
+            description: May be empty
+            items:
+              $ref: '#/components/schemas/CommonEmailAddress'
+          physicalAddresses:
+            type: array
+            description: Must contain at least one address. One and only one address may have the purpose of REGISTERED. Zero or one, and no more than one, record may have the purpose of MAIL. If zero then the REGISTERED address is to be used for mail
+            items:
+              $ref: '#/components/schemas/CommonPhysicalAddressWithPurpose'
+    CommonEmailAddress:
+      required:
+      - address
+      - purpose
+      type: object
+      properties:
+        isPreferred:
+          type: boolean
+          description: May be true for one and only one email record in the collection. Denotes the default email address
+          x-cds-type: Boolean
+        purpose:
+          type: string
+          description: The purpose for the email, as specified by the customer (Enumeration)
+          enum:
+          - WORK
+          - HOME
+          - OTHER
+          - UNSPECIFIED
+        address:
+          type: string
+          description: A correctly formatted email address, as defined by the addr_spec format in [RFC 5322](https://www.ietf.org/rfc/rfc5322.txt)
+          x-cds-type: ExternalRef
+    ResponseCommonCustomer:
+      required:
+      - data
+      - links
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResponseCommonCustomer_data'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      x-conditional:
+      - person
+      - organisation
+    ResponseCommonCustomerDetail:
+      required:
+      - data
+      - links
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResponseCommonCustomerDetail_data'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      x-conditional:
+      - person
+      - organisation
+    ResponseErrorList:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseErrorList_errors'
+    CommonPhysicalAddress:
+      required:
+      - addressUType
+      type: object
+      properties:
+        addressUType:
+          type: string
+          description: The type of address object present
+          enum:
+          - simple
+          - paf
+        simple:
+          $ref: '#/components/schemas/CommonSimpleAddress'
+        paf:
+          $ref: '#/components/schemas/CommonPAFAddress'
+      x-conditional:
+      - simple
+      - paf
+    Meta:
+      type: object
+    ResponseCommonCustomer_data:
+      required:
+      - customerUType
+      type: object
+      properties:
+        customerUType:
+          type: string
+          description: The type of customer object that is present
+          enum:
+          - person
+          - organisation
+        person:
+          $ref: '#/components/schemas/CommonPerson'
+        organisation:
+          $ref: '#/components/schemas/CommonOrganisation'
+    CommonPerson:
+      required:
+      - lastName
+      - middleNames
+      type: object
+      properties:
+        lastUpdateTime:
+          type: string
+          description: The date and time that this record was last updated by the customer.  If no update has occurred then this date should reflect the initial creation date for the data
+          x-cds-type: DateTimeString
+        firstName:
+          type: string
+          description: For people with single names this field need not be present.  The single name should be in the lastName field
+        lastName:
+          type: string
+          description: For people with single names the single name should be in this field
+        middleNames:
+          type: array
+          description: Field is mandatory but array may be empty
+          items:
+            type: string
+        prefix:
+          type: string
+          description: Also known as title or salutation.  The prefix to the name (e.g. Mr, Mrs, Ms, Miss, Sir, etc)
+        suffix:
+          type: string
+          description: Used for a trailing suffix to the name (e.g. Jr)
+        occupationCode:
+          type: string
+          description: Value is a valid [ANZSCO v1.2](http://www.abs.gov.au/ANZSCO) Standard Occupation classification.
+    CommonSimpleAddress:
+      required:
+      - addressLine1
+      - city
+      - state
+      type: object
+      properties:
+        mailingName:
+          type: string
+          description: Name of the individual or business formatted for inclusion in an address used for physical mail
+        addressLine1:
+          type: string
+          description: First line of the standard address object
+        addressLine2:
+          type: string
+          description: Second line of the standard address object
+        addressLine3:
+          type: string
+          description: Third line of the standard address object
+        postcode:
+          type: string
+          description: Mandatory for Australian addresses
+        city:
+          type: string
+          description: Name of the city or locality
+        state:
+          type: string
+          description: Free text if the country is not Australia. If country is Australia then must be one of the values defined by the [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf) in the PAF file format. NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
+        country:
+          type: string
+          description: A valid [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country code. Australia (AUS) is assumed if country is not present.
+          default: AUS
+          x-cds-type: ExternalRef
+      x-conditional:
+      - postcode
+    CommonPhoneNumber:
+      required:
+      - fullNumber
+      - number
+      - purpose
+      type: object
+      properties:
+        isPreferred:
+          type: boolean
+          description: May be true for one and only one entry to indicate the preferred phone number. Assumed to be 'false' if not present
+          x-cds-type: Boolean
+        purpose:
+          type: string
+          description: The purpose of the number as specified by the customer
+          enum:
+          - MOBILE
+          - HOME
+          - WORK
+          - OTHER
+          - INTERNATIONAL
+          - UNSPECIFIED
+        countryCode:
+          type: string
+          description: If absent, assumed to be Australia (+61). The + should be included
+        areaCode:
+          type: string
+          description: Required for non Mobile Phones, if field is present and refers to Australian code - the leading 0 should be omitted.
+        number:
+          type: string
+          description: The actual phone number, with leading zeros as appropriate
+        extension:
+          type: string
+          description: An extension number (if applicable)
+        fullNumber:
+          type: string
+          description: Fully formatted phone number with country code, area code, number and extension incorporated. Formatted according to section 5.1.4. of [RFC 3966](https://www.ietf.org/rfc/rfc3966.txt)
+          x-cds-type: ExternalRef
+      x-conditional:
+      - areaCode
+    ResponseErrorList_errors:
+      required:
+      - code
+      - detail
+      - title
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+        title:
+          type: string
+          description: Error title
+        detail:
+          type: string
+          description: Error details
+        meta:
+          type: object
+          properties: {}
+          description: Optional additional data for specific error types
+    Links:
+      required:
+      - self
+      type: object
+      properties:
+        self:
+          type: string
+          description: Fully qualified link that generated the current response document
+          x-cds-type: URIString
+    CommonPAFAddress:
+      required:
+      - localityName
+      - postcode
+      - state
+      type: object
+      properties:
+        dpid:
+          type: string
+          description: Unique identifier for an address as defined by Australia Post.  Also known as Delivery Point Identifier
+        thoroughfareNumber1:
+          type: integer
+          description: Thoroughfare number for a property (first number in a property ranged address)
+          x-cds-type: PositiveInteger
+        thoroughfareNumber1Suffix:
+          type: string
+          description: Suffix for the thoroughfare number. Only relevant is thoroughfareNumber1 is populated
+        thoroughfareNumber2:
+          type: integer
+          description: Second thoroughfare number (only used if the property has a ranged address eg 23-25)
+          x-cds-type: PositiveInteger
+        thoroughfareNumber2Suffix:
+          type: string
+          description: Suffix for the second thoroughfare number. Only relevant is thoroughfareNumber2 is populated
+        flatUnitType:
+          type: string
+          description: Type of flat or unit for the address
+        flatUnitNumber:
+          type: string
+          description: Unit number (including suffix, if applicable)
+        floorLevelType:
+          type: string
+          description: Type of floor or level for the address
+        floorLevelNumber:
+          type: string
+          description: Floor or level number (including alpha characters)
+        lotNumber:
+          type: string
+          description: Allotment number for the address
+        buildingName1:
+          type: string
+          description: Building/Property name 1
+        buildingName2:
+          type: string
+          description: Building/Property name 2
+        streetName:
+          type: string
+          description: The name of the street
+        streetType:
+          type: string
+          description: The street type. Valid enumeration defined by Australia Post PAF code file
+        streetSuffix:
+          type: string
+          description: The street type suffix. Valid enumeration defined by Australia Post PAF code file
+        postalDeliveryType:
+          type: string
+          description: Postal delivery type. (eg. PO BOX). Valid enumeration defined by Australia Post PAF code file
+        postalDeliveryNumber:
+          type: integer
+          description: Postal delivery number if the address is a postal delivery type
+          x-cds-type: PositiveInteger
+        postalDeliveryNumberPrefix:
+          type: string
+          description: Postal delivery number prefix related to the postal delivery number
+        postalDeliveryNumberSuffix:
+          type: string
+          description: Postal delivery number suffix related to the postal delivery number
+        localityName:
+          type: string
+          description: Full name of locality
+        postcode:
+          type: string
+          description: Postcode for the locality
+        state:
+          type: string
+          description: State in which the address belongs. Valid enumeration defined by Australia Post PAF code file [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf). NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
+      description: Australian address formatted according to the file format defined by the [PAF file format](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf)
+    ResponseCommonCustomerDetail_data:
+      required:
+      - customerUType
+      type: object
+      properties:
+        customerUType:
+          type: string
+          description: The type of customer object that is present
+          enum:
+          - person
+          - organisation
+        person:
+          $ref: '#/components/schemas/CommonPersonDetail'
+        organisation:
+          $ref: '#/components/schemas/CommonOrganisationDetail'
