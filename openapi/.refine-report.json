@@ -1,0 +1,40 @@
+{
+  "provider": "newcastle-permanent",
+  "sources": [
+    "newcastle-permanent-accounts-api-openapi.yml",
+    "newcastle-permanent-banking-account-balances-api-openapi.yml",
+    "newcastle-permanent-banking-account-direct-debits-api-openapi.yml",
+    "newcastle-permanent-banking-account-scheduled-payments-api-openapi.yml",
+    "newcastle-permanent-banking-account-transactions-api-openapi.yml",
+    "newcastle-permanent-banking-accounts-api-openapi.yml",
+    "newcastle-permanent-banking-api-openapi.yml",
+    "newcastle-permanent-banking-payees-api-openapi.yml",
+    "newcastle-permanent-banking-products-api-openapi.yml",
+    "newcastle-permanent-common-api-openapi.yml",
+    "newcastle-permanent-customer-api-openapi.yml",
+    "newcastle-permanent-direct-debits-api-openapi.yml",
+    "newcastle-permanent-payees-api-openapi.yml",
+    "newcastle-permanent-scheduled-payments-api-openapi.yml"
+  ],
+  "outputs": [
+    "newcastle-permanent-accounts-api-openapi.yml",
+    "newcastle-permanent-banking-account-balances-api-openapi.yml",
+    "newcastle-permanent-banking-account-direct-debits-api-openapi.yml",
+    "newcastle-permanent-banking-account-scheduled-payments-api-openapi.yml",
+    "newcastle-permanent-banking-account-transactions-api-openapi.yml",
+    "newcastle-permanent-banking-accounts-api-openapi.yml",
+    "newcastle-permanent-banking-api-openapi.yml",
+    "newcastle-permanent-banking-payees-api-openapi.yml",
+    "newcastle-permanent-banking-products-api-openapi.yml",
+    "newcastle-permanent-common-api-openapi.yml",
+    "newcastle-permanent-customer-api-openapi.yml",
+    "newcastle-permanent-direct-debits-api-openapi.yml",
+    "newcastle-permanent-payees-api-openapi.yml",
+    "newcastle-permanent-scheduled-payments-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}
