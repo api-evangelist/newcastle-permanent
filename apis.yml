@@ -46,6 +46,8 @@ apis:
   humanURL: https://developer.newcastlepermanent.com.au/
   baseURL: https://openbank.newcastlepermanent.com.au/cds-au/v1/banking/products
   tags:
+  - Account
+  tags_raw:
   - Accounts
   properties:
   - type: OpenAPI
@@ -307,6 +309,8 @@ apis:
   humanURL: https://developer.newcastlepermanent.com.au/
   baseURL: https://openbank.newcastlepermanent.com.au/cds-au/v1/banking/products
   tags:
+  - Customers
+  tags_raw:
   - Customer
   properties:
   - type: OpenAPI
