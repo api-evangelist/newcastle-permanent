@@ -13,6 +13,18 @@ description: Newcastle Permanent Building Society is a customer-owned Australian
   public, unauthenticated Product Reference Data (PRD) API conforming to the Data Standards
   Body Consumer Data Standards, alongside an NPBS Innovation Sandbox and Marketplace
   developer portal.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: unknown
   onboarding: self-serve
