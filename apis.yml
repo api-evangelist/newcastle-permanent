@@ -286,6 +286,9 @@ apis:
   - type: APIReference
     url: https://consumerdatastandardsaustralia.github.io/standards/#common-apis_get-customer
 common:
+- type: CapabilityMap
+  url: capabilities/newcastle-permanent-capability-edges.yml
+  name: Newcastle Permanent Building Society Business Capability Map
 - type: DomainSecurity
   url: security/newcastle-permanent-domain-security.yml
 - type: Website
