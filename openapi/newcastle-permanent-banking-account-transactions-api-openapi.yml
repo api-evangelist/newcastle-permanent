@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
   contact:
     email: contact@dsb.gov.au
@@ -8,7 +8,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  title: CDR Banking Accounts Banking Account Transactions API
+  title: CDR Banking Banking Account Transactions API
   version: 1.36.0
 servers:
 - description: MTLS
@@ -23,10 +23,27 @@ paths:
       description: 'Obtain transactions for a specific account.
 
 
-        Some general notes that apply to all endpoints that retrieve transactions:<ul><li>Where multiple transactions are returned, transactions should be ordered according to effective date in descending order<li>As the date and time for a transaction can alter depending on status and transaction type two separate date/times are included in the payload. There are still some scenarios where neither of these time stamps is available. For the purpose of filtering and ordering it is expected that the data holder will use the "effective" date/time which will be defined as:<ul><li>Posted date/time if available, then<li>Execution date/time if available, then<li>A reasonable date/time nominated by the data holder using internal data structures</ul><li>For transaction amounts it should be assumed that a negative value indicates a reduction of the available balance on the account while a positive value indicates an increase in the available balance on the account<li>For aggregated transactions (i.e. groups of sub transactions reported as a single entry for the account) only the aggregated information, with as much consistent information across the subsidiary transactions as possible, is required to be shared.</ul>
+        Some general notes that apply to all endpoints that retrieve transactions:
 
 
-        Obsolete versions: [v1](includes/obsolete/get-transactions-for-account-v1.html).'
+        Where multiple transactions are returned, transactions should be ordered according to effective date in descending order
+
+        As the date and time for a transaction can alter depending on status and transaction type two separate date/times are included in the payload. There are still some scenarios where neither of these time stamps is available. For the purpose of filtering and ordering it is expected that the data holder will use the "effective" date/time which will be defined as:
+
+
+        Posted date/time if available, then
+
+        Execution date/time if available, then
+
+        A reasonable date/time nominated by the data holder using internal data structures
+
+
+        For transaction amounts it should be assumed that a negative value indicates a reduction of the available balance on the account while a positive value indicates an increase in the available balance on the account
+
+        For aggregated transactions (i.e. groups of sub transactions reported as a single entry for the account) only the aggregated information, with as much consistent information across the subsidiary transactions as possible, is required to be shared.
+
+
+        Obsolete versions: v1.'
       operationId: listBankingTransactions
       parameters:
       - description: The _accountId_ to obtain data for. _accountId_ values are returned by account list endpoints.
@@ -211,7 +228,7 @@ paths:
       description: 'Obtain detailed information on a transaction for a specific account.
 
 
-        Obsolete versions: [v1](includes/obsolete/get-transaction-detail-v1.html), [v2](includes/obsolete/get-transaction-detail-v2.html).'
+        Obsolete versions: v1, v2.'
       operationId: getBankingTransactionDetail
       parameters:
       - description: The _accountId_ to obtain data for. _accountId_ values are returned by account list endpoints.
@@ -328,22 +345,16 @@ paths:
       x-version: '3'
 components:
   schemas:
-    ErrorV2_meta:
-      description: Additional data for customised error codes.
-      properties:
-        urn:
-          description: The CDR error code URN which the application-specific error code extends. Mandatory if the error _code_ is an application-specific error rather than a standardised error code.
-          type: string
+    BankingInstalmentPlanId:
+      description: A unique identifier for a Banking instalment plan, generated according to [CDR ID Permanence](#id-permanence) requirements.
+      type: string
+      x-cds-type: ASCIIString
+    Meta:
       type: object
-      x-conditional:
-      - urn
-    MetaPaginatedTransaction_allOf:
-      properties:
-        isQueryParamUnsupported:
-          default: false
-          description: '`true` if _text_ query parameter is not supported.'
-          type: boolean
-      type: object
+    BankingAccountId:
+      description: A unique identifier for a Banking account, generated according to [CDR ID Permanence](#id-permanence) requirements.
+      type: string
+      x-cds-type: ASCIIString
     ResponseBankingTransactionListV2:
       properties:
         data:
@@ -356,6 +367,57 @@ components:
       - data
       - links
       - meta
+      type: object
+    BankingTransactionDetailV3_allOf_extendedData:
+      properties:
+        payer:
+          description: Label of the originating payer. Mandatory for inbound payment.
+          type: string
+        payee:
+          description: Label of the target PayID. Mandatory for an outbound payment. The name assigned to the BSB/Account Number or PayID (by the owner of the PayID).
+          type: string
+        extensionUType:
+          description: Optional extended data specific to transactions. Currently extended data is supported for NPP service overlays.
+          enum:
+          - nppPayload
+          type: string
+        nppPayload:
+          $ref: '#/components/schemas/BankingTransactionDetailV3_allOf_extendedData_nppPayload'
+      type: object
+      x-conditional:
+      - payer
+      - payee
+      - nppPayload
+    ResponseErrorListV2:
+      properties:
+        errors:
+          description: List of errors.
+          items:
+            $ref: '#/components/schemas/ErrorV2'
+          type: array
+      required:
+      - errors
+      type: object
+    BankingTransactionDetailV3_allOf:
+      properties:
+        extendedData:
+          $ref: '#/components/schemas/BankingTransactionDetailV3_allOf_extendedData'
+      required:
+      - extendedData
+      type: object
+    MetaPaginated:
+      properties:
+        totalRecords:
+          description: The total number of records in the full set. See [pagination](#pagination).
+          type: integer
+          x-cds-type: NaturalNumber
+        totalPages:
+          description: The total number of pages in the full set. See [pagination](#pagination).
+          type: integer
+          x-cds-type: NaturalNumber
+      required:
+      - totalPages
+      - totalRecords
       type: object
     BankingTransactionV2:
       properties:
@@ -450,20 +512,24 @@ components:
       - transactionId
       - postingDateTime
       - crn
-    ResponseErrorListV2:
+    NppPaymentService:
+      description: Identifier of the applicable overlay service. The _service_ is used in conjunction with the _serviceVersion_. See [here](#npp-services) for more details.
+      enum:
+      - X2P1
+      - IFTI
+      - BSCT
+      - CATSCT
+      example: X2P1
+      type: string
+    ResponseBankingTransactionListV2_data:
       properties:
-        errors:
-          description: List of errors.
+        transactions:
           items:
-            $ref: '#/components/schemas/ErrorV2'
+            $ref: '#/components/schemas/BankingTransactionV2'
           type: array
       required:
-      - errors
+      - transactions
       type: object
-    BankingTransactionId:
-      description: A unique identifier for a Banking transaction, generated according to [CDR ID Permanence](#id-permanence) requirements.
-      type: string
-      x-cds-type: ASCIIString
     LinksPaginated:
       properties:
         self:
@@ -494,67 +560,35 @@ components:
       - next
       - first
       - last
-    BankingTransactionDetailV3_allOf_extendedData:
+    MetaPaginatedTransaction_allOf:
       properties:
-        payer:
-          description: Label of the originating payer. Mandatory for inbound payment.
+        isQueryParamUnsupported:
+          default: false
+          description: '`true` if _text_ query parameter is not supported.'
+          type: boolean
+      type: object
+    ErrorV2_meta:
+      description: Additional data for customised error codes.
+      properties:
+        urn:
+          description: The CDR error code URN which the application-specific error code extends. Mandatory if the error _code_ is an application-specific error rather than a standardised error code.
           type: string
-        payee:
-          description: Label of the target PayID. Mandatory for an outbound payment. The name assigned to the BSB/Account Number or PayID (by the owner of the PayID).
-          type: string
-        extensionUType:
-          description: Optional extended data specific to transactions. Currently extended data is supported for NPP service overlays.
-          enum:
-          - nppPayload
-          type: string
-        nppPayload:
-          $ref: '#/components/schemas/BankingTransactionDetailV3_allOf_extendedData_nppPayload'
       type: object
       x-conditional:
-      - payer
-      - payee
-      - nppPayload
-    Meta:
-      type: object
-    MetaPaginated:
+      - urn
+    Links:
       properties:
-        totalRecords:
-          description: The total number of records in the full set. See [pagination](#pagination).
-          type: integer
-          x-cds-type: NaturalNumber
-        totalPages:
-          description: The total number of pages in the full set. See [pagination](#pagination).
-          type: integer
-          x-cds-type: NaturalNumber
+        self:
+          description: Fully qualified link that generated the current response document.
+          type: string
+          x-cds-type: URIString
       required:
-      - totalPages
-      - totalRecords
+      - self
       type: object
-    ResponseBankingTransactionByIdV3:
-      properties:
-        data:
-          $ref: '#/components/schemas/BankingTransactionDetailV3'
-        links:
-          $ref: '#/components/schemas/Links'
-        meta:
-          $ref: '#/components/schemas/Meta'
-      required:
-      - data
-      - links
-      type: object
-    NppPaymentService:
-      description: Identifier of the applicable overlay service. The _service_ is used in conjunction with the _serviceVersion_. See [here](#npp-services) for more details.
-      enum:
-      - X2P1
-      - IFTI
-      - BSCT
-      - CATSCT
-      example: X2P1
-      type: string
-    BankingAccountId:
-      description: A unique identifier for a Banking account, generated according to [CDR ID Permanence](#id-permanence) requirements.
-      type: string
-      x-cds-type: ASCIIString
+    MetaPaginatedTransaction:
+      allOf:
+      - $ref: '#/components/schemas/MetaPaginated'
+      - $ref: '#/components/schemas/MetaPaginatedTransaction_allOf'
     BankingTransactionDetailV3_allOf_extendedData_nppPayload:
       description: Mandatory if the _extensionUType_ value is `nppPayload`.
       properties:
@@ -581,35 +615,14 @@ components:
       type: object
       x-conditional:
       - extendedDescription
-    ResponseBankingTransactionListV2_data:
-      properties:
-        transactions:
-          items:
-            $ref: '#/components/schemas/BankingTransactionV2'
-          type: array
-      required:
-      - transactions
-      type: object
-    BankingTransactionDetailV3_allOf:
-      properties:
-        extendedData:
-          $ref: '#/components/schemas/BankingTransactionDetailV3_allOf_extendedData'
-      required:
-      - extendedData
-      type: object
-    Links:
-      properties:
-        self:
-          description: Fully qualified link that generated the current response document.
-          type: string
-          x-cds-type: URIString
-      required:
-      - self
-      type: object
-    MetaPaginatedTransaction:
+    BankingTransactionId:
+      description: A unique identifier for a Banking transaction, generated according to [CDR ID Permanence](#id-permanence) requirements.
+      type: string
+      x-cds-type: ASCIIString
+    BankingTransactionDetailV3:
       allOf:
-      - $ref: '#/components/schemas/MetaPaginated'
-      - $ref: '#/components/schemas/MetaPaginatedTransaction_allOf'
+      - $ref: '#/components/schemas/BankingTransactionV2'
+      - $ref: '#/components/schemas/BankingTransactionDetailV3_allOf'
     ErrorV2:
       properties:
         code:
@@ -630,14 +643,18 @@ components:
       type: object
       x-conditional:
       - meta
-    BankingTransactionDetailV3:
-      allOf:
-      - $ref: '#/components/schemas/BankingTransactionV2'
-      - $ref: '#/components/schemas/BankingTransactionDetailV3_allOf'
-    BankingInstalmentPlanId:
-      description: A unique identifier for a Banking instalment plan, generated according to [CDR ID Permanence](#id-permanence) requirements.
-      type: string
-      x-cds-type: ASCIIString
+    ResponseBankingTransactionByIdV3:
+      properties:
+        data:
+          $ref: '#/components/schemas/BankingTransactionDetailV3'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - links
+      type: object
   headers:
     XV:
       description: The [payload version](#response-headers) that the endpoint has responded with.

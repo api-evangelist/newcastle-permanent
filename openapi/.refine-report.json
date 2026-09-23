@@ -1,40 +1,48 @@
 {
   "provider": "newcastle-permanent",
   "sources": [
-    "newcastle-permanent-accounts-api-openapi.yml",
-    "newcastle-permanent-banking-account-balances-api-openapi.yml",
-    "newcastle-permanent-banking-account-direct-debits-api-openapi.yml",
-    "newcastle-permanent-banking-account-scheduled-payments-api-openapi.yml",
-    "newcastle-permanent-banking-account-transactions-api-openapi.yml",
-    "newcastle-permanent-banking-accounts-api-openapi.yml",
-    "newcastle-permanent-banking-api-openapi.yml",
-    "newcastle-permanent-banking-payees-api-openapi.yml",
-    "newcastle-permanent-banking-products-api-openapi.yml",
-    "newcastle-permanent-common-api-openapi.yml",
-    "newcastle-permanent-customer-api-openapi.yml",
-    "newcastle-permanent-direct-debits-api-openapi.yml",
-    "newcastle-permanent-payees-api-openapi.yml",
-    "newcastle-permanent-scheduled-payments-api-openapi.yml"
+    "_original/newcastle-permanent-cds-banking-products-openapi.yml",
+    "_original/newcastle-permanent-customer-data-openapi.json"
   ],
   "outputs": [
-    "newcastle-permanent-accounts-api-openapi.yml",
     "newcastle-permanent-banking-account-balances-api-openapi.yml",
     "newcastle-permanent-banking-account-direct-debits-api-openapi.yml",
     "newcastle-permanent-banking-account-scheduled-payments-api-openapi.yml",
     "newcastle-permanent-banking-account-transactions-api-openapi.yml",
     "newcastle-permanent-banking-accounts-api-openapi.yml",
-    "newcastle-permanent-banking-api-openapi.yml",
     "newcastle-permanent-banking-payees-api-openapi.yml",
     "newcastle-permanent-banking-products-api-openapi.yml",
-    "newcastle-permanent-common-api-openapi.yml",
-    "newcastle-permanent-customer-api-openapi.yml",
-    "newcastle-permanent-direct-debits-api-openapi.yml",
-    "newcastle-permanent-payees-api-openapi.yml",
-    "newcastle-permanent-scheduled-payments-api-openapi.yml"
+    "newcastle-permanent-banking-api-openapi.yml",
+    "newcastle-permanent-common-api-openapi.yml"
   ],
   "archived": [],
   "errors": [],
   "warnings": [],
-  "notes": [],
-  "skipped": []
+  "notes": [
+    "1 archived document(s) dropped as subsets of other archived documents",
+    "sourced from openapi/_original/ (2 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "newcastle-permanent-cds-banking-products-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "newcastle-permanent-customer-data-openapi.json: upgraded openapi 3.0.1 -> OpenAPI 3.2.0",
+    "newcastle-permanent-customer-data-openapi.json: declared missing tag: Accounts",
+    "newcastle-permanent-customer-data-openapi.json: declared missing tag: Banking",
+    "newcastle-permanent-customer-data-openapi.json: declared missing tag: Common",
+    "newcastle-permanent-customer-data-openapi.json: declared missing tag: Customer",
+    "newcastle-permanent-customer-data-openapi.json: declared missing tag: Direct Debits",
+    "newcastle-permanent-customer-data-openapi.json: declared missing tag: Payees",
+    "newcastle-permanent-customer-data-openapi.json: declared missing tag: Scheduled Payments",
+    "newcastle-permanent-customer-data-openapi.json: multi-axis tagging (7 tags, 2 first tags, 2.00x duplication over 17 operations) \u2014 split on first tag, 17 operations narrowed",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "_original/newcastle-permanent-products-openapi.json: archived document superseded by a larger archived document",
+    "newcastle-permanent-banking-account-balances-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "newcastle-permanent-banking-account-direct-debits-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "newcastle-permanent-banking-account-scheduled-payments-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "newcastle-permanent-banking-account-transactions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "newcastle-permanent-banking-accounts-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "newcastle-permanent-banking-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "newcastle-permanent-banking-payees-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "newcastle-permanent-banking-products-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "newcastle-permanent-common-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

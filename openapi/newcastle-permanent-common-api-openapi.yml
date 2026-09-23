@@ -1,18 +1,23 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
+  title: ConsumerDataStandards Common API
+  description: 'API sets created by the Australian Consumer Data Standards to meet the needs of the Consumer Data Right.
+
+
+    Useful links:
+
+
+    OIDC Discovery Document'
   contact:
-    email: contact@dsb.gov.au
-    name: Data Standards Body
-    url: https://dsb.gov.au/
-  description: Specifications for resource endpoints applicable to data holders in the Banking sector.
+    name: Consumer Data Standards
+    url: https://consumerdatastandards.gov.au/
+    email: cdr-data61@csiro.au
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  title: CDR Banking Accounts Common API
   version: 1.36.0
 servers:
-- description: MTLS
-  url: https://mtls.dh.example.com/cds-au/v1
+- url: https://openbank-secure.newcastlepermanent.com.au/cds-au/v1
 tags:
 - name: Common
 paths:
@@ -198,95 +203,6 @@ paths:
       x-throttling-tier: Unlimited
 components:
   schemas:
-    CommonOrganisation:
-      required:
-      - agentLastName
-      - agentRole
-      - businessName
-      - organisationType
-      type: object
-      properties:
-        lastUpdateTime:
-          type: string
-          description: The date and time that this record was last updated by the customer. If no update has occurred then this date should reflect the initial creation date for the data
-          x-cds-type: DateTimeString
-        agentFirstName:
-          type: string
-          description: The first name of the individual providing access on behalf of the organisation. For people with single names this field need not be present.  The single name should be in the lastName field
-        agentLastName:
-          type: string
-          description: The last name of the individual providing access on behalf of the organisation. For people with single names the single name should be in this field
-        agentRole:
-          type: string
-          description: The role of the individual identified as the agent who is providing authorisation.  Expected to be used for display. Default to Unspecified if the role is not known
-        businessName:
-          type: string
-          description: Name of the organisation
-        legalName:
-          type: string
-          description: Legal name, if different to the business name
-        shortName:
-          type: string
-          description: Short name used for communication, if different to the business name
-        abn:
-          type: string
-          description: Australian Business Number for the organisation
-        acn:
-          type: string
-          description: Australian Company Number for the organisation. Required only if an ACN is applicable for the organisation type
-        isACNCRegistered:
-          type: boolean
-          description: True if registered with the ACNC.  False if not. Absent or null if not confirmed.
-          x-cds-type: Boolean
-        industryCode:
-          type: string
-          description: '[ANZSIC (2006)](http://www.abs.gov.au/anzsic) code for the organisation.'
-        organisationType:
-          type: string
-          description: Legal organisation type
-          enum:
-          - SOLE_TRADER
-          - COMPANY
-          - PARTNERSHIP
-          - TRUST
-          - GOVERNMENT_ENTITY
-          - OTHER
-        registeredCountry:
-          type: string
-          description: Enumeration with values from [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country codes.  Assumed to be AUS if absent
-          x-cds-type: ExternalRef
-        establishmentDate:
-          type: string
-          description: The date the organisation described was established
-          x-cds-type: DateString
-    CommonPhysicalAddressWithPurpose:
-      allOf:
-      - $ref: '#/components/schemas/CommonPhysicalAddress'
-      - required:
-        - purpose
-        type: object
-        properties:
-          purpose:
-            type: string
-            description: Enumeration of values indicating the purpose of the physical address
-            enum:
-            - REGISTERED
-            - MAIL
-            - PHYSICAL
-            - WORK
-            - OTHER
-    CommonOrganisationDetail:
-      allOf:
-      - $ref: '#/components/schemas/CommonOrganisation'
-      - required:
-        - physicalAddresses
-        type: object
-        properties:
-          physicalAddresses:
-            type: array
-            description: Must contain at least one address. One and only one address may have the purpose of REGISTERED. Zero or one, and no more than one, record may have the purpose of MAIL. If zero then the REGISTERED address is to be used for mail
-            items:
-              $ref: '#/components/schemas/CommonPhysicalAddressWithPurpose'
     CommonPersonDetail:
       allOf:
       - $ref: '#/components/schemas/CommonPerson'
@@ -311,6 +227,21 @@ components:
             description: Must contain at least one address. One and only one address may have the purpose of REGISTERED. Zero or one, and no more than one, record may have the purpose of MAIL. If zero then the REGISTERED address is to be used for mail
             items:
               $ref: '#/components/schemas/CommonPhysicalAddressWithPurpose'
+    ResponseCommonCustomer_data:
+      required:
+      - customerUType
+      type: object
+      properties:
+        customerUType:
+          type: string
+          description: The type of customer object that is present
+          enum:
+          - person
+          - organisation
+        person:
+          $ref: '#/components/schemas/CommonPerson'
+        organisation:
+          $ref: '#/components/schemas/CommonOrganisation'
     CommonEmailAddress:
       required:
       - address
@@ -333,184 +264,8 @@ components:
           type: string
           description: A correctly formatted email address, as defined by the addr_spec format in [RFC 5322](https://www.ietf.org/rfc/rfc5322.txt)
           x-cds-type: ExternalRef
-    ResponseCommonCustomer:
-      required:
-      - data
-      - links
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/ResponseCommonCustomer_data'
-        links:
-          $ref: '#/components/schemas/Links'
-        meta:
-          $ref: '#/components/schemas/Meta'
-      x-conditional:
-      - person
-      - organisation
-    ResponseCommonCustomerDetail:
-      required:
-      - data
-      - links
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/ResponseCommonCustomerDetail_data'
-        links:
-          $ref: '#/components/schemas/Links'
-        meta:
-          $ref: '#/components/schemas/Meta'
-      x-conditional:
-      - person
-      - organisation
-    ResponseErrorList:
-      required:
-      - errors
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseErrorList_errors'
-    CommonPhysicalAddress:
-      required:
-      - addressUType
-      type: object
-      properties:
-        addressUType:
-          type: string
-          description: The type of address object present
-          enum:
-          - simple
-          - paf
-        simple:
-          $ref: '#/components/schemas/CommonSimpleAddress'
-        paf:
-          $ref: '#/components/schemas/CommonPAFAddress'
-      x-conditional:
-      - simple
-      - paf
     Meta:
       type: object
-    ResponseCommonCustomer_data:
-      required:
-      - customerUType
-      type: object
-      properties:
-        customerUType:
-          type: string
-          description: The type of customer object that is present
-          enum:
-          - person
-          - organisation
-        person:
-          $ref: '#/components/schemas/CommonPerson'
-        organisation:
-          $ref: '#/components/schemas/CommonOrganisation'
-    CommonPerson:
-      required:
-      - lastName
-      - middleNames
-      type: object
-      properties:
-        lastUpdateTime:
-          type: string
-          description: The date and time that this record was last updated by the customer.  If no update has occurred then this date should reflect the initial creation date for the data
-          x-cds-type: DateTimeString
-        firstName:
-          type: string
-          description: For people with single names this field need not be present.  The single name should be in the lastName field
-        lastName:
-          type: string
-          description: For people with single names the single name should be in this field
-        middleNames:
-          type: array
-          description: Field is mandatory but array may be empty
-          items:
-            type: string
-        prefix:
-          type: string
-          description: Also known as title or salutation.  The prefix to the name (e.g. Mr, Mrs, Ms, Miss, Sir, etc)
-        suffix:
-          type: string
-          description: Used for a trailing suffix to the name (e.g. Jr)
-        occupationCode:
-          type: string
-          description: Value is a valid [ANZSCO v1.2](http://www.abs.gov.au/ANZSCO) Standard Occupation classification.
-    CommonSimpleAddress:
-      required:
-      - addressLine1
-      - city
-      - state
-      type: object
-      properties:
-        mailingName:
-          type: string
-          description: Name of the individual or business formatted for inclusion in an address used for physical mail
-        addressLine1:
-          type: string
-          description: First line of the standard address object
-        addressLine2:
-          type: string
-          description: Second line of the standard address object
-        addressLine3:
-          type: string
-          description: Third line of the standard address object
-        postcode:
-          type: string
-          description: Mandatory for Australian addresses
-        city:
-          type: string
-          description: Name of the city or locality
-        state:
-          type: string
-          description: Free text if the country is not Australia. If country is Australia then must be one of the values defined by the [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf) in the PAF file format. NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
-        country:
-          type: string
-          description: A valid [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country code. Australia (AUS) is assumed if country is not present.
-          default: AUS
-          x-cds-type: ExternalRef
-      x-conditional:
-      - postcode
-    CommonPhoneNumber:
-      required:
-      - fullNumber
-      - number
-      - purpose
-      type: object
-      properties:
-        isPreferred:
-          type: boolean
-          description: May be true for one and only one entry to indicate the preferred phone number. Assumed to be 'false' if not present
-          x-cds-type: Boolean
-        purpose:
-          type: string
-          description: The purpose of the number as specified by the customer
-          enum:
-          - MOBILE
-          - HOME
-          - WORK
-          - OTHER
-          - INTERNATIONAL
-          - UNSPECIFIED
-        countryCode:
-          type: string
-          description: If absent, assumed to be Australia (+61). The + should be included
-        areaCode:
-          type: string
-          description: Required for non Mobile Phones, if field is present and refers to Australian code - the leading 0 should be omitted.
-        number:
-          type: string
-          description: The actual phone number, with leading zeros as appropriate
-        extension:
-          type: string
-          description: An extension number (if applicable)
-        fullNumber:
-          type: string
-          description: Fully formatted phone number with country code, area code, number and extension incorporated. Formatted according to section 5.1.4. of [RFC 3966](https://www.ietf.org/rfc/rfc3966.txt)
-          x-cds-type: ExternalRef
-      x-conditional:
-      - areaCode
     ResponseErrorList_errors:
       required:
       - code
@@ -531,15 +286,30 @@ components:
           type: object
           properties: {}
           description: Optional additional data for specific error types
-    Links:
+    ResponseErrorList:
       required:
-      - self
+      - errors
       type: object
       properties:
-        self:
-          type: string
-          description: Fully qualified link that generated the current response document
-          x-cds-type: URIString
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseErrorList_errors'
+    ResponseCommonCustomerDetail:
+      required:
+      - data
+      - links
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResponseCommonCustomerDetail_data'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      x-conditional:
+      - person
+      - organisation
     CommonPAFAddress:
       required:
       - localityName
@@ -617,6 +387,79 @@ components:
           type: string
           description: State in which the address belongs. Valid enumeration defined by Australia Post PAF code file [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf). NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
       description: Australian address formatted according to the file format defined by the [PAF file format](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf)
+    CommonPhysicalAddressWithPurpose:
+      allOf:
+      - $ref: '#/components/schemas/CommonPhysicalAddress'
+      - required:
+        - purpose
+        type: object
+        properties:
+          purpose:
+            type: string
+            description: Enumeration of values indicating the purpose of the physical address
+            enum:
+            - REGISTERED
+            - MAIL
+            - PHYSICAL
+            - WORK
+            - OTHER
+    CommonPhoneNumber:
+      required:
+      - fullNumber
+      - number
+      - purpose
+      type: object
+      properties:
+        isPreferred:
+          type: boolean
+          description: May be true for one and only one entry to indicate the preferred phone number. Assumed to be 'false' if not present
+          x-cds-type: Boolean
+        purpose:
+          type: string
+          description: The purpose of the number as specified by the customer
+          enum:
+          - MOBILE
+          - HOME
+          - WORK
+          - OTHER
+          - INTERNATIONAL
+          - UNSPECIFIED
+        countryCode:
+          type: string
+          description: If absent, assumed to be Australia (+61). The + should be included
+        areaCode:
+          type: string
+          description: Required for non Mobile Phones, if field is present and refers to Australian code - the leading 0 should be omitted.
+        number:
+          type: string
+          description: The actual phone number, with leading zeros as appropriate
+        extension:
+          type: string
+          description: An extension number (if applicable)
+        fullNumber:
+          type: string
+          description: Fully formatted phone number with country code, area code, number and extension incorporated. Formatted according to section 5.1.4. of [RFC 3966](https://www.ietf.org/rfc/rfc3966.txt)
+          x-cds-type: ExternalRef
+      x-conditional:
+      - areaCode
+    CommonPhysicalAddress:
+      required:
+      - addressUType
+      type: object
+      properties:
+        addressUType:
+          type: string
+          description: The type of address object present
+          enum:
+          - simple
+          - paf
+        simple:
+          $ref: '#/components/schemas/CommonSimpleAddress'
+        paf:
+          $ref: '#/components/schemas/CommonPAFAddress'
+      x-conditional:
+      - simple
+      - paf
     ResponseCommonCustomerDetail_data:
       required:
       - customerUType
@@ -632,3 +475,269 @@ components:
           $ref: '#/components/schemas/CommonPersonDetail'
         organisation:
           $ref: '#/components/schemas/CommonOrganisationDetail'
+    Links:
+      required:
+      - self
+      type: object
+      properties:
+        self:
+          type: string
+          description: Fully qualified link that generated the current response document
+          x-cds-type: URIString
+    CommonOrganisationDetail:
+      allOf:
+      - $ref: '#/components/schemas/CommonOrganisation'
+      - required:
+        - physicalAddresses
+        type: object
+        properties:
+          physicalAddresses:
+            type: array
+            description: Must contain at least one address. One and only one address may have the purpose of REGISTERED. Zero or one, and no more than one, record may have the purpose of MAIL. If zero then the REGISTERED address is to be used for mail
+            items:
+              $ref: '#/components/schemas/CommonPhysicalAddressWithPurpose'
+    CommonOrganisation:
+      required:
+      - agentLastName
+      - agentRole
+      - businessName
+      - organisationType
+      type: object
+      properties:
+        lastUpdateTime:
+          type: string
+          description: The date and time that this record was last updated by the customer. If no update has occurred then this date should reflect the initial creation date for the data
+          x-cds-type: DateTimeString
+        agentFirstName:
+          type: string
+          description: The first name of the individual providing access on behalf of the organisation. For people with single names this field need not be present.  The single name should be in the lastName field
+        agentLastName:
+          type: string
+          description: The last name of the individual providing access on behalf of the organisation. For people with single names the single name should be in this field
+        agentRole:
+          type: string
+          description: The role of the individual identified as the agent who is providing authorisation.  Expected to be used for display. Default to Unspecified if the role is not known
+        businessName:
+          type: string
+          description: Name of the organisation
+        legalName:
+          type: string
+          description: Legal name, if different to the business name
+        shortName:
+          type: string
+          description: Short name used for communication, if different to the business name
+        abn:
+          type: string
+          description: Australian Business Number for the organisation
+        acn:
+          type: string
+          description: Australian Company Number for the organisation. Required only if an ACN is applicable for the organisation type
+        isACNCRegistered:
+          type: boolean
+          description: True if registered with the ACNC.  False if not. Absent or null if not confirmed.
+          x-cds-type: Boolean
+        industryCode:
+          type: string
+          description: '[ANZSIC (2006)](http://www.abs.gov.au/anzsic) code for the organisation.'
+        organisationType:
+          type: string
+          description: Legal organisation type
+          enum:
+          - SOLE_TRADER
+          - COMPANY
+          - PARTNERSHIP
+          - TRUST
+          - GOVERNMENT_ENTITY
+          - OTHER
+        registeredCountry:
+          type: string
+          description: Enumeration with values from [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country codes.  Assumed to be AUS if absent
+          x-cds-type: ExternalRef
+        establishmentDate:
+          type: string
+          description: The date the organisation described was established
+          x-cds-type: DateString
+    CommonSimpleAddress:
+      required:
+      - addressLine1
+      - city
+      - state
+      type: object
+      properties:
+        mailingName:
+          type: string
+          description: Name of the individual or business formatted for inclusion in an address used for physical mail
+        addressLine1:
+          type: string
+          description: First line of the standard address object
+        addressLine2:
+          type: string
+          description: Second line of the standard address object
+        addressLine3:
+          type: string
+          description: Third line of the standard address object
+        postcode:
+          type: string
+          description: Mandatory for Australian addresses
+        city:
+          type: string
+          description: Name of the city or locality
+        state:
+          type: string
+          description: Free text if the country is not Australia. If country is Australia then must be one of the values defined by the [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf) in the PAF file format. NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
+        country:
+          type: string
+          description: A valid [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country code. Australia (AUS) is assumed if country is not present.
+          default: AUS
+          x-cds-type: ExternalRef
+      x-conditional:
+      - postcode
+    CommonPerson:
+      required:
+      - lastName
+      - middleNames
+      type: object
+      properties:
+        lastUpdateTime:
+          type: string
+          description: The date and time that this record was last updated by the customer.  If no update has occurred then this date should reflect the initial creation date for the data
+          x-cds-type: DateTimeString
+        firstName:
+          type: string
+          description: For people with single names this field need not be present.  The single name should be in the lastName field
+        lastName:
+          type: string
+          description: For people with single names the single name should be in this field
+        middleNames:
+          type: array
+          description: Field is mandatory but array may be empty
+          items:
+            type: string
+        prefix:
+          type: string
+          description: Also known as title or salutation.  The prefix to the name (e.g. Mr, Mrs, Ms, Miss, Sir, etc)
+        suffix:
+          type: string
+          description: Used for a trailing suffix to the name (e.g. Jr)
+        occupationCode:
+          type: string
+          description: Value is a valid [ANZSCO v1.2](http://www.abs.gov.au/ANZSCO) Standard Occupation classification.
+    ResponseCommonCustomer:
+      required:
+      - data
+      - links
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResponseCommonCustomer_data'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      x-conditional:
+      - person
+      - organisation
+  securitySchemes:
+    PSUOAuth2Security:
+      type: oauth2
+      description: OAuth flow, it is required when the PSU needs to perform SCA with the ASPSP when a TPP wants to access an ASPSP resource owned by the PSU
+      flows:
+        authorizationCode:
+          authorizationUrl: https://openbank-secure.newcastlepermanent.com.au/authorize
+          tokenUrl: https://openbank-secure.newcastlepermanent.com.au/token
+          scopes:
+            bank:accounts.basic:read: 'Basic Bank Account Data : This scope would allow for the third party to access basic information of the customer accounts. Includes simple account information including balance. Does not include account identifiers, product information or transaction data.'
+            bank:transactions:read: 'Bank Transaction Data : This scope would allow the third party to access transaction data for accounts. This scope is effectively additional authorisation to the Basic Bank Account Data scope. Granting this authorisation only makes sense if the Basic Bank Account Data scope is also authorised.
+
+              Includes all account transaction data.'
+            bank:payees:read: 'Bank Payee Data : This scope allows access to payee information stored by the customer .
+
+              Includes payee information such as billers, international beneficiaries and domestic payees.'
+            common:customer.basic:read: 'Basic Customer Data : The scope would allow the third party to access personally identifiable information about the customer. For retail customers this would be information about the customer themselves. For business customers it would imply the name of specific user but also information about the business.
+
+              Includes name and occupation for individuals or name, business numbers and industry code for organisations'
+            bank:accounts.detail:read: 'Detailed Bank Account Data : This scope would allow for the third party to access detailed information of the customer accounts. This scope is effectively additional authorisation to the Basic Bank Account Data scope. Granting this authorisation only makes sense if the Bank Account Data scope is also authorised.
+
+              Includes basic account information plus account identifiers and product information. Does not include transaction data.'
+            common:customer.detail:read: 'Detailed Customer Data : The scope would allow the third party to access more detailed information about the customer. Includes the data available with the Basic Customer Data scope plus contact details.
+
+              Includes basic data plus phone, email and address information.'
+            bank:regular_payments:read: 'Bank Regular Payments : The scope would allow the third party to access regular payments. Includes Direct Debits and Scheduled Payments.'
+            profile: This scope value requests access to the End-User's default profile Claims, which are name, family_name, given_name, middle_name, nickname, preferred_username, profile, picture, website, gender, birthdate, zoneinfo, locale, and updated_at.
+      x-scopes-bindings:
+        bank:regular_payments:read: Internal/subscriber
+        bank:accounts.detail:read: Internal/subscriber
+        common:customer.detail:read: Internal/subscriber
+        bank:payees:read: Internal/subscriber
+        bank:transactions:read: Internal/subscriber
+        bank:accounts.basic:read: Internal/subscriber
+        common:customer.basic:read: Internal/subscriber
+    default:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://openbank-secure.newcastlepermanent.com.au/authorize
+          tokenUrl: https://openbank-secure.newcastlepermanent.com.au/token
+          scopes:
+            bank:accounts.basic:read: 'Basic Bank Account Data : This scope would allow for the third party to access basic information of the customer accounts. Includes simple account information including balance. Does not include account identifiers, product information or transaction data.'
+            bank:transactions:read: 'Bank Transaction Data : This scope would allow the third party to access transaction data for accounts. This scope is effectively additional authorisation to the Basic Bank Account Data scope. Granting this authorisation only makes sense if the Basic Bank Account Data scope is also authorised.
+
+              Includes all account transaction data.'
+            bank:payees:read: 'Bank Payee Data : This scope allows access to payee information stored by the customer .
+
+              Includes payee information such as billers, international beneficiaries and domestic payees.'
+            common:customer.basic:read: 'Basic Customer Data : The scope would allow the third party to access personally identifiable information about the customer. For retail customers this would be information about the customer themselves. For business customers it would imply the name of specific user but also information about the business.
+
+              Includes name and occupation for individuals or name, business numbers and industry code for organisations'
+            bank:accounts.detail:read: 'Detailed Bank Account Data : This scope would allow for the third party to access detailed information of the customer accounts. This scope is effectively additional authorisation to the Basic Bank Account Data scope. Granting this authorisation only makes sense if the Bank Account Data scope is also authorised.Includes basic account information plus account identifiers and product information. Does not include transaction data.'
+            common:customer.detail:read: 'Detailed Customer Data : The scope would allow the third party to access more detailed information about the customer. Includes the data available with the Basic Customer Data scope plus contact details.
+
+              Includes basic data plus phone, email and address information.'
+            bank:regular_payments:read: 'Bank Regular Payments : The scope would allow the third party to access regular payments. Includes Direct Debits and Scheduled Payments.'
+            profile: This scope value requests access to the End-User's default profile Claims, which are name, family_name, given_name, middle_name, nickname, preferred_username, profile, picture, website, gender, birthdate, zoneinfo, locale, and updated_at.
+      x-scopes-bindings:
+        bank:regular_payments:read: Internal/subscriber
+        bank:accounts.detail:read: Internal/subscriber
+        common:customer.detail:read: Internal/subscriber
+        bank:payees:read: Internal/subscriber
+        bank:transactions:read: Internal/subscriber
+        bank:accounts.basic:read: Internal/subscriber
+        common:customer.basic:read: Internal/subscriber
+x-wso2-request-interceptor: java:com.wso2.finance.open.banking.mg.interceptor.OpenBankingInterceptor
+x-wso2-response-interceptor: java:com.wso2.finance.open.banking.mg.interceptor.OpenBankingInterceptor
+x-wso2-auth-header: Authorization
+x-wso2-cors:
+  corsConfigurationEnabled: false
+  accessControlAllowOrigins:
+  - '*'
+  accessControlAllowCredentials: false
+  accessControlAllowHeaders:
+  - authorization
+  - Access-Control-Allow-Origin
+  - Content-Type
+  - SOAPAction
+  - apikey
+  accessControlAllowMethods:
+  - GET
+  - PUT
+  - POST
+  - DELETE
+  - PATCH
+  - OPTIONS
+x-wso2-production-endpoints: '#/x-wso2-endpoints/productionEndpoint'
+x-wso2-sandbox-endpoints: '#/x-wso2-endpoints/sandboxEndpoint'
+x-wso2-endpoints:
+- productionEndpoint:
+    urls:
+    - https://localhost:9443/api/openbanking/backend-cds/services
+- sandboxEndpoint:
+    urls:
+    - https://localhost:9443/api/openbanking/backend-cds/services
+x-wso2-basePath: /cds-au/v1
+x-wso2-transports:
+- http
+- https
+x-wso2-response-cache:
+  enabled: false
+  cacheTimeoutInSeconds: 300
+x-original-swagger-version: '2.0'
