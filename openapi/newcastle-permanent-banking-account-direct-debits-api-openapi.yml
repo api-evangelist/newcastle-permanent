@@ -433,6 +433,121 @@ paths:
       x-version: '1'
 components:
   schemas:
+    ResponseBankingDirectDebitAuthorisationList_data:
+      properties:
+        directDebitAuthorisations:
+          description: The list of authorisations returned.
+          items:
+            $ref: '#/components/schemas/BankingDirectDebit'
+          type: array
+      required:
+      - directDebitAuthorisations
+      type: object
+    MetaPaginated:
+      properties:
+        totalRecords:
+          description: The total number of records in the full set. See [pagination](#pagination).
+          type: integer
+          x-cds-type: NaturalNumber
+        totalPages:
+          description: The total number of pages in the full set. See [pagination](#pagination).
+          type: integer
+          x-cds-type: NaturalNumber
+      required:
+      - totalPages
+      - totalRecords
+      type: object
+    BankingAuthorisedEntity:
+      properties:
+        description:
+          description: Description of the authorised entity derived from previously executed direct debits.
+          type: string
+        financialInstitution:
+          description: Name of the financial institution through which the direct debit will be executed. Is required unless the payment is made via a credit card scheme.
+          type: string
+        abn:
+          description: Australian Business Number for the authorised entity.
+          type: string
+        acn:
+          description: Australian Company Number for the authorised entity.
+          type: string
+        arbn:
+          description: Australian Registered Body Number for the authorised entity.
+          type: string
+      type: object
+      x-conditional:
+      - financialInstitution
+    ResponseErrorListV2:
+      properties:
+        errors:
+          description: List of errors.
+          items:
+            $ref: '#/components/schemas/ErrorV2'
+          type: array
+      required:
+      - errors
+      type: object
+    BankingAccountId:
+      description: A unique identifier for a Banking account, generated according to [CDR ID Permanence](#id-permanence) requirements.
+      type: string
+      x-cds-type: ASCIIString
+    RequestAccountIdListV1:
+      properties:
+        data:
+          $ref: '#/components/schemas/RequestAccountIdListV1_data'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      type: object
+    BankingDirectDebit:
+      properties:
+        accountId:
+          allOf:
+          - $ref: '#/components/schemas/BankingAccountId'
+          description: Unique identifier for the account.
+        authorisedEntity:
+          $ref: '#/components/schemas/BankingAuthorisedEntity'
+        lastDebitDateTime:
+          description: The date and time of the last debit executed under this authorisation.
+          type: string
+          x-cds-type: DateTimeString
+        lastDebitAmount:
+          description: The amount of the last debit executed under this authorisation.
+          type: string
+          x-cds-type: AmountString
+      required:
+      - accountId
+      - authorisedEntity
+      type: object
+    Meta:
+      type: object
+    ErrorV2_meta:
+      description: Additional data for customised error codes.
+      properties:
+        urn:
+          description: The CDR error code URN which the application-specific error code extends. Mandatory if the error _code_ is an application-specific error rather than a standardised error code.
+          type: string
+      type: object
+      x-conditional:
+      - urn
+    BankingProductCategoryV2:
+      description: The category to which a product or account belongs. See [here](#product-categories) for more details.
+      enum:
+      - BUSINESS_LOANS
+      - BUY_NOW_PAY_LATER
+      - CRED_AND_CHRG_CARDS
+      - LEASES
+      - MARGIN_LOANS
+      - OVERDRAFTS
+      - PERS_LOANS
+      - REGULATED_TRUST_ACCOUNTS
+      - RESIDENTIAL_MORTGAGES
+      - TERM_DEPOSITS
+      - TRADE_FINANCE
+      - TRANS_AND_SAVINGS_ACCOUNTS
+      - TRAVEL_CARDS
+      type: string
     LinksPaginated:
       properties:
         self:
@@ -463,82 +578,6 @@ components:
       - next
       - first
       - last
-    ResponseBankingDirectDebitAuthorisationList_data:
-      properties:
-        directDebitAuthorisations:
-          description: The list of authorisations returned.
-          items:
-            $ref: '#/components/schemas/BankingDirectDebit'
-          type: array
-      required:
-      - directDebitAuthorisations
-      type: object
-    Meta:
-      type: object
-    BankingAuthorisedEntity:
-      properties:
-        description:
-          description: Description of the authorised entity derived from previously executed direct debits.
-          type: string
-        financialInstitution:
-          description: Name of the financial institution through which the direct debit will be executed. Is required unless the payment is made via a credit card scheme.
-          type: string
-        abn:
-          description: Australian Business Number for the authorised entity.
-          type: string
-        acn:
-          description: Australian Company Number for the authorised entity.
-          type: string
-        arbn:
-          description: Australian Registered Body Number for the authorised entity.
-          type: string
-      type: object
-      x-conditional:
-      - financialInstitution
-    BankingDirectDebit:
-      properties:
-        accountId:
-          allOf:
-          - $ref: '#/components/schemas/BankingAccountId'
-          description: Unique identifier for the account.
-        authorisedEntity:
-          $ref: '#/components/schemas/BankingAuthorisedEntity'
-        lastDebitDateTime:
-          description: The date and time of the last debit executed under this authorisation.
-          type: string
-          x-cds-type: DateTimeString
-        lastDebitAmount:
-          description: The amount of the last debit executed under this authorisation.
-          type: string
-          x-cds-type: AmountString
-      required:
-      - accountId
-      - authorisedEntity
-      type: object
-    BankingAccountId:
-      description: A unique identifier for a Banking account, generated according to [CDR ID Permanence](#id-permanence) requirements.
-      type: string
-      x-cds-type: ASCIIString
-    ErrorV2:
-      properties:
-        code:
-          description: The code of the error encountered. Where the error is specific to the respondent, an application-specific error code, expressed as a string value. If the error is application-specific, the URN code that the specific error extends must be provided in the _meta_ object. Otherwise, the value is the error code URN.
-          type: string
-        title:
-          description: A short, human-readable summary of the problem that **MUST NOT** change from occurrence to occurrence of the problem represented by the error code.
-          type: string
-        detail:
-          description: A human-readable explanation specific to this occurrence of the problem.
-          type: string
-        meta:
-          $ref: '#/components/schemas/ErrorV2_meta'
-      required:
-      - code
-      - detail
-      - title
-      type: object
-      x-conditional:
-      - meta
     ResponseBankingDirectDebitAuthorisationList:
       properties:
         data:
@@ -562,65 +601,26 @@ components:
       required:
       - accountIds
       type: object
-    ErrorV2_meta:
-      description: Additional data for customised error codes.
+    ErrorV2:
       properties:
-        urn:
-          description: The CDR error code URN which the application-specific error code extends. Mandatory if the error _code_ is an application-specific error rather than a standardised error code.
+        code:
+          description: The code of the error encountered. Where the error is specific to the respondent, an application-specific error code, expressed as a string value. If the error is application-specific, the URN code that the specific error extends must be provided in the _meta_ object. Otherwise, the value is the error code URN.
           type: string
+        title:
+          description: A short, human-readable summary of the problem that **MUST NOT** change from occurrence to occurrence of the problem represented by the error code.
+          type: string
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+        meta:
+          $ref: '#/components/schemas/ErrorV2_meta'
+      required:
+      - code
+      - detail
+      - title
       type: object
       x-conditional:
-      - urn
-    ResponseErrorListV2:
-      properties:
-        errors:
-          description: List of errors.
-          items:
-            $ref: '#/components/schemas/ErrorV2'
-          type: array
-      required:
-      - errors
-      type: object
-    RequestAccountIdListV1:
-      properties:
-        data:
-          $ref: '#/components/schemas/RequestAccountIdListV1_data'
-        meta:
-          $ref: '#/components/schemas/Meta'
-      required:
-      - data
-      type: object
-    MetaPaginated:
-      properties:
-        totalRecords:
-          description: The total number of records in the full set. See [pagination](#pagination).
-          type: integer
-          x-cds-type: NaturalNumber
-        totalPages:
-          description: The total number of pages in the full set. See [pagination](#pagination).
-          type: integer
-          x-cds-type: NaturalNumber
-      required:
-      - totalPages
-      - totalRecords
-      type: object
-    BankingProductCategoryV2:
-      description: The category to which a product or account belongs. See [here](#product-categories) for more details.
-      enum:
-      - BUSINESS_LOANS
-      - BUY_NOW_PAY_LATER
-      - CRED_AND_CHRG_CARDS
-      - LEASES
-      - MARGIN_LOANS
-      - OVERDRAFTS
-      - PERS_LOANS
-      - REGULATED_TRUST_ACCOUNTS
-      - RESIDENTIAL_MORTGAGES
-      - TERM_DEPOSITS
-      - TRADE_FINANCE
-      - TRANS_AND_SAVINGS_ACCOUNTS
-      - TRAVEL_CARDS
-      type: string
+      - meta
   headers:
     XV:
       description: The [payload version](#response-headers) that the endpoint has responded with.
