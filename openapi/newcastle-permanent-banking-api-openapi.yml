@@ -2051,41 +2051,157 @@ paths:
       x-throttling-tier: Unlimited
 components:
   schemas:
-    ResponseBankingAccountsBalanceById:
+    CommonSimpleAddress:
       required:
-      - data
-      - links
+      - addressLine1
+      - city
+      - state
       type: object
       properties:
-        data:
-          $ref: '#/components/schemas/BankingBalance'
-        links:
-          $ref: '#/components/schemas/Links'
-        meta:
-          $ref: '#/components/schemas/Meta'
-    ResponseBankingAccountsBalanceList_data:
-      required:
-      - balances
-      type: object
-      properties:
-        balances:
-          type: array
-          description: The list of balances returned
-          items:
-            $ref: '#/components/schemas/BankingBalance'
-    BankingBalancePurse:
-      required:
-      - amount
-      type: object
-      properties:
-        amount:
+        mailingName:
           type: string
-          description: The balance available for this additional currency purse
+          description: Name of the individual or business formatted for inclusion in an address used for physical mail
+        addressLine1:
+          type: string
+          description: First line of the standard address object
+        addressLine2:
+          type: string
+          description: Second line of the standard address object
+        addressLine3:
+          type: string
+          description: Third line of the standard address object
+        postcode:
+          type: string
+          description: Mandatory for Australian addresses
+        city:
+          type: string
+          description: Name of the city or locality
+        state:
+          type: string
+          description: Free text if the country is not Australia. If country is Australia then must be one of the values defined by the [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf) in the PAF file format. NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
+        country:
+          type: string
+          description: A valid [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country code. Australia (AUS) is assumed if country is not present.
+          default: AUS
+          x-cds-type: ExternalRef
+      x-conditional:
+      - postcode
+    BankingScheduledPaymentRecurrenceEventBased:
+      required:
+      - description
+      type: object
+      properties:
+        description:
+          type: string
+          description: Description of the event and conditions that will result in the payment. Expected to be formatted for display to a customer
+      description: Indicates that the schedule of payments is defined according to an external event that cannot be predetermined. Mandatory if recurrenceUType is set to eventBased
+    BankingScheduledPaymentTo:
+      required:
+      - toUType
+      type: object
+      properties:
+        toUType:
+          type: string
+          description: The type of object provided that specifies the destination of the funds for the payment.
+          enum:
+          - accountId
+          - payeeId
+          - domestic
+          - biller
+          - international
+        accountId:
+          type: string
+          description: Present if toUType is set to accountId. Indicates that the payment is to another account that is accessible under the current consent
+          x-cds-type: ASCIIString
+        payeeId:
+          type: string
+          description: Present if toUType is set to payeeId. Indicates that the payment is to registered payee that can be accessed using the payee end point. If the Bank Payees scope has not been consented to then a payeeId should not be provided and the full payee details should be provided instead
+          x-cds-type: ASCIIString
+        domestic:
+          $ref: '#/components/schemas/BankingDomesticPayee'
+        biller:
+          $ref: '#/components/schemas/BankingBillerPayee'
+        international:
+          $ref: '#/components/schemas/BankingInternationalPayee'
+      description: Object containing details of the destination of the payment. Used to specify a variety of payment destination types
+      x-conditional:
+      - accountId
+      - payeeId
+      - domestic
+      - biller
+      - international
+    BankingLoanAccount:
+      required:
+      - loanEndDate
+      - nextInstalmentDate
+      - repaymentFrequency
+      type: object
+      properties:
+        originalStartDate:
+          type: string
+          description: Optional original start date for the loan
+          x-cds-type: DateString
+        originalLoanAmount:
+          type: string
+          description: Optional original loan value
           x-cds-type: AmountString
-        currency:
+        originalLoanCurrency:
           type: string
-          description: The currency for the purse
+          description: If absent assumes AUD
           x-cds-type: CurrencyString
+        loanEndDate:
+          type: string
+          description: Date that the loan is due to be repaid in full
+          x-cds-type: DateString
+        nextInstalmentDate:
+          type: string
+          description: Next date that an instalment is required
+          x-cds-type: DateString
+        minInstalmentAmount:
+          type: string
+          description: Minimum amount of next instalment
+          x-cds-type: AmountString
+        minInstalmentCurrency:
+          type: string
+          description: If absent assumes AUD
+          x-cds-type: CurrencyString
+        maxRedraw:
+          type: string
+          description: Maximum amount of funds that can be redrawn. If not present redraw is not available even if the feature exists for the account
+          x-cds-type: AmountString
+        maxRedrawCurrency:
+          type: string
+          description: If absent assumes AUD
+          x-cds-type: CurrencyString
+        minRedraw:
+          type: string
+          description: Minimum redraw amount
+          x-cds-type: AmountString
+        minRedrawCurrency:
+          type: string
+          description: If absent assumes AUD
+          x-cds-type: CurrencyString
+        offsetAccountEnabled:
+          type: boolean
+          description: Set to true if one or more offset accounts are configured for this loan account
+          x-cds-type: Boolean
+        offsetAccountIds:
+          type: array
+          description: The accountIDs of the configured offset accounts attached to this loan. Only offset accounts that can be accessed under the current authorisation should be included. It is expected behaviour that offsetAccountEnabled is set to true but the offsetAccountIds field is absent or empty. This represents a situation where an offset account exists but details can not be accessed under the current authorisation
+          items:
+            type: string
+            x-cds-type: ASCIIString
+        repaymentType:
+          type: string
+          description: Options in place for repayments. If absent defaults to PRINCIPAL_AND_INTEREST
+          default: PRINCIPAL_AND_INTEREST
+          enum:
+          - INTEREST_ONLY
+          - PRINCIPAL_AND_INTEREST
+        repaymentFrequency:
+          type: string
+          description: The expected or required repayment frequency. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax)
+          x-cds-type: ExternalRef
     BankingBillerPayee:
       required:
       - billerCode
@@ -2103,6 +2219,302 @@ components:
           description: Name of the Biller
       x-conditional:
       - crn
+    ResponseBankingDirectDebitAuthorisationList:
+      required:
+      - data
+      - links
+      - meta
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResponseBankingDirectDebitAuthorisationList_data'
+        links:
+          $ref: '#/components/schemas/LinksPaginated'
+        meta:
+          $ref: '#/components/schemas/MetaPaginated'
+    BankingAuthorisedEntity:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Description of the authorised entity derived from previously executed direct debits
+        financialInstitution:
+          type: string
+          description: Name of the financial institution through which the direct debit will be executed. Is required unless the payment is made via a credit card scheme
+        abn:
+          type: string
+          description: Australian Business Number for the authorised entity
+        acn:
+          type: string
+          description: Australian Company Number for the authorised entity
+        arbn:
+          type: string
+          description: Australian Registered Body Number for the authorised entity
+    BankingCreditCardAccount:
+      required:
+      - minPaymentAmount
+      - paymentDueAmount
+      - paymentDueDate
+      type: object
+      properties:
+        minPaymentAmount:
+          type: string
+          description: The minimum payment amount due for the next card payment
+          x-cds-type: AmountString
+        paymentDueAmount:
+          type: string
+          description: The amount due for the next card payment
+          x-cds-type: AmountString
+        paymentCurrency:
+          type: string
+          description: If absent assumes AUD
+          x-cds-type: CurrencyString
+        paymentDueDate:
+          type: string
+          description: Date that the next payment for the card is due
+          x-cds-type: DateString
+    BankingScheduledPaymentRecurrenceLastWeekday:
+      required:
+      - interval
+      - lastWeekDay
+      type: object
+      properties:
+        finalPaymentDate:
+          type: string
+          description: The limit date after which no more payments should be made using this schedule. If both finalPaymentDate and paymentsRemaining are present then payments will stop according to the most constraining value. If neither field is present the payments will continue indefinitely
+          x-cds-type: DateString
+        paymentsRemaining:
+          type: integer
+          description: Indicates the number of payments remaining in the schedule. If both finalPaymentDate and paymentsRemaining are present then payments will stop according to the most constraining value. If neither field is present the payments will continue indefinitely
+          x-cds-type: PositiveInteger
+        interval:
+          type: string
+          description: The interval for the payment. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax) with components less than a day in length ignored. This duration defines the period between payments starting with nextPaymentDate
+          x-cds-type: ExternalRef
+        lastWeekDay:
+          type: string
+          description: The weekDay specified. The payment will occur on the last occurrence of this weekday in the interval.
+          enum:
+          - MON
+          - TUE
+          - WED
+          - THU
+          - FRI
+          - SAT
+          - SUN
+        nonBusinessDayTreatment:
+          type: string
+          description: Enumerated field giving the treatment where a scheduled payment date is not a business day. If absent assumed to be ON.<br/>**AFTER** - If a scheduled payment date is a non-business day the payment will be made on the first business day after the scheduled payment date.<br/>**BEFORE** - If a scheduled payment date is a non-business day the payment will be made on the first business day before the scheduled payment date.<br/>**ON** - If a scheduled payment date is a non-business day the payment will be made on that day regardless.<br/>**ONLY** - Payments only occur on business days. If a scheduled payment date is a non-business day the payment will be ignored
+          default: 'ON'
+          enum:
+          - AFTER
+          - BEFORE
+          - 'ON'
+          - ONLY
+      description: Indicates that the schedule of payments is defined according to the last occurrence of a specific weekday in an interval. Mandatory if recurrenceUType is set to lastWeekDay
+    ResponseErrorList:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseErrorList_errors'
+    ResponseBankingPayeeList:
+      required:
+      - data
+      - links
+      - meta
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResponseBankingPayeeList_data'
+        links:
+          $ref: '#/components/schemas/LinksPaginated'
+        meta:
+          $ref: '#/components/schemas/MetaPaginated'
+    BankingTransactionDetail:
+      allOf:
+      - $ref: '#/components/schemas/BankingTransaction'
+      - required:
+        - extendedData
+        type: object
+        properties:
+          extendedData:
+            $ref: '#/components/schemas/BankingTransactionDetail_extendedData'
+    BankingTransactionDetail_extendedDataV2:
+      type: object
+      properties:
+        payer:
+          type: string
+          description: Label of the originating payer. Mandatory for inbound payment
+        payee:
+          type: string
+          description: Label of the target PayID.  Mandatory for an outbound payment. The name assigned to the BSB/Account Number or PayID (by the owner of the PayID)
+        extensionUType:
+          type: string
+          description: Optional extended data provided specific to transaction originated via NPP
+          enum:
+          - nppPayload
+        nppPayload:
+          $ref: '#/components/schemas/BankingTransactionDetail_extendedData_nppPayload'
+    BankingScheduledPaymentSet:
+      required:
+      - to
+      type: object
+      properties:
+        to:
+          $ref: '#/components/schemas/BankingScheduledPaymentTo'
+        isAmountCalculated:
+          type: boolean
+          description: Flag indicating whether the amount of the payment is calculated based on the context of the event. For instance a payment to reduce the balance of a credit card to zero. If absent then false is assumed
+          x-cds-type: Boolean
+        amount:
+          type: string
+          description: The amount of the next payment if known. Mandatory unless the isAmountCalculated field is set to true. Must be zero or positive if present
+          x-cds-type: AmountString
+        currency:
+          type: string
+          description: The currency for the payment. AUD assumed if not present
+          x-cds-type: CurrencyString
+      description: The set of payment amounts and destination accounts for this payment accommodating multi-part payments. A single entry indicates a simple payment with one destination account. Must have at least one entry
+      x-conditional:
+      - amount
+    BankingScheduledPaymentRecurrenceOnceOff:
+      required:
+      - paymentDate
+      type: object
+      properties:
+        paymentDate:
+          type: string
+          description: The scheduled date for the once off payment
+          x-cds-type: DateString
+      description: Indicates that the payment is a once off payment on a specific future date. Mandatory if recurrenceUType is set to onceOff
+    BankingScheduledPaymentFrom:
+      required:
+      - accountId
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: ID of the account that is the source of funds for the payment
+          x-cds-type: ASCIIString
+      description: Object containing details of the source of the payment. Currently only specifies an account ID but provided as an object to facilitate future extensibility and consistency with the to object
+    BankingBalance:
+      required:
+      - accountId
+      - availableBalance
+      - currentBalance
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: A unique ID of the account adhering to the standards for ID permanence
+          x-cds-type: ASCIIString
+        currentBalance:
+          type: string
+          description: The balance of the account at this time. Should align to the balance available via other channels such as Internet Banking. Assumed to be negative if the customer has money owing
+          x-cds-type: AmountString
+        availableBalance:
+          type: string
+          description: Balance representing the amount of funds available for transfer. Assumed to be zero or positive
+          x-cds-type: AmountString
+        creditLimit:
+          type: string
+          description: Object representing the maximum amount of credit that is available for this account. Assumed to be zero if absent
+          x-cds-type: AmountString
+        amortisedLimit:
+          type: string
+          description: Object representing the available limit amortised according to payment schedule. Assumed to be zero if absent
+          x-cds-type: AmountString
+        currency:
+          type: string
+          description: The currency for the balance amounts. If absent assumed to be AUD
+          x-cds-type: CurrencyString
+        purses:
+          type: array
+          description: Optional array of balances for the account in other currencies. Included to support accounts that support multi-currency purses such as Travel Cards
+          items:
+            $ref: '#/components/schemas/BankingBalancePurse'
+    ResponseBankingScheduledPaymentsList_data:
+      required:
+      - scheduledPayments
+      type: object
+      properties:
+        scheduledPayments:
+          type: array
+          description: The list of scheduled payments to return
+          items:
+            $ref: '#/components/schemas/BankingScheduledPayment'
+    BankingBalancePurse:
+      required:
+      - amount
+      type: object
+      properties:
+        amount:
+          type: string
+          description: The balance available for this additional currency purse
+          x-cds-type: AmountString
+        currency:
+          type: string
+          description: The currency for the purse
+          x-cds-type: CurrencyString
+    ResponseBankingAccountsBalanceList:
+      required:
+      - data
+      - links
+      - meta
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResponseBankingAccountsBalanceList_data'
+        links:
+          $ref: '#/components/schemas/LinksPaginated'
+        meta:
+          $ref: '#/components/schemas/MetaPaginated'
+    ResponseBankingScheduledPaymentsList:
+      required:
+      - data
+      - links
+      - meta
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResponseBankingScheduledPaymentsList_data'
+        links:
+          $ref: '#/components/schemas/LinksPaginated'
+        meta:
+          $ref: '#/components/schemas/MetaPaginated'
+    BankingScheduledPaymentInterval:
+      required:
+      - interval
+      type: object
+      properties:
+        interval:
+          type: string
+          description: An interval for the payment. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations)  (excludes recurrence syntax) with components less than a day in length ignored. This duration defines the period between payments starting with nextPaymentDate
+          x-cds-type: ExternalRef
+        dayInInterval:
+          type: string
+          description: Uses an interval to define the ordinal day within the interval defined by the interval field on which the payment occurs. If the resulting duration is 0 days in length or larger than the number of days in the interval then the payment will occur on the last day of the interval. A duration of 1 day indicates the first day of the interval. If absent the assumed value is P1D. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax) with components less than a day in length ignored. The first day of a week is considered to be Monday.
+          x-cds-type: ExternalRef
+    BankingProductCategory:
+      type: string
+      description: The category to which a product or account belongs. See [here](https://consumerdatastandardsaustralia.github.io/standards/#product-categories) for more details
+      enum:
+      - TRANS_AND_SAVINGS_ACCOUNTS
+      - TERM_DEPOSITS
+      - TRAVEL_CARDS
+      - REGULATED_TRUST_ACCOUNTS
+      - RESIDENTIAL_MORTGAGES
+      - CRED_AND_CHRG_CARDS
+      - PERS_LOANS
+      - MARGIN_LOANS
+      - LEASES
+      - TRADE_FINANCE
+      - OVERDRAFTS
+      - BUSINESS_LOANS
     BankingProductDepositRate:
       required:
       - depositRateType
@@ -2223,168 +2635,6 @@ components:
                 x-cds-type: URIString
       x-conditional:
       - additionalValue
-    BankingInternationalPayee_bankDetails_bankAddress:
-      required:
-      - address
-      - name
-      type: object
-      properties:
-        name:
-          type: string
-          description: Name of the recipient Bank
-        address:
-          type: string
-          description: Address of the recipient Bank
-    BankingScheduledPaymentSet:
-      required:
-      - to
-      type: object
-      properties:
-        to:
-          $ref: '#/components/schemas/BankingScheduledPaymentTo'
-        isAmountCalculated:
-          type: boolean
-          description: Flag indicating whether the amount of the payment is calculated based on the context of the event. For instance a payment to reduce the balance of a credit card to zero. If absent then false is assumed
-          x-cds-type: Boolean
-        amount:
-          type: string
-          description: The amount of the next payment if known. Mandatory unless the isAmountCalculated field is set to true. Must be zero or positive if present
-          x-cds-type: AmountString
-        currency:
-          type: string
-          description: The currency for the payment. AUD assumed if not present
-          x-cds-type: CurrencyString
-      description: The set of payment amounts and destination accounts for this payment accommodating multi-part payments. A single entry indicates a simple payment with one destination account. Must have at least one entry
-      x-conditional:
-      - amount
-    ResponseBankingScheduledPaymentsList:
-      required:
-      - data
-      - links
-      - meta
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/ResponseBankingScheduledPaymentsList_data'
-        links:
-          $ref: '#/components/schemas/LinksPaginated'
-        meta:
-          $ref: '#/components/schemas/MetaPaginated'
-    Meta:
-      type: object
-    BankingScheduledPaymentRecurrenceIntervalSchedule:
-      required:
-      - intervals
-      type: object
-      properties:
-        finalPaymentDate:
-          type: string
-          description: The limit date after which no more payments should be made using this schedule. If both finalPaymentDate and paymentsRemaining are present then payments will stop according to the most constraining value. If neither field is present the payments will continue indefinitely
-          x-cds-type: DateString
-        paymentsRemaining:
-          type: integer
-          description: Indicates the number of payments remaining in the schedule. If both finalPaymentDate and paymentsRemaining are present then payments will stop according to the most constraining value, If neither field is present the payments will continue indefinitely
-          x-cds-type: PositiveInteger
-        nonBusinessDayTreatment:
-          type: string
-          description: Enumerated field giving the treatment where a scheduled payment date is not a business day. If absent assumed to be ON.<br/>**AFTER** - If a scheduled payment date is a non-business day the payment will be made on the first business day after the scheduled payment date.<br/>**BEFORE** - If a scheduled payment date is a non-business day the payment will be made on the first business day before the scheduled payment date.<br/>**ON** - If a scheduled payment date is a non-business day the payment will be made on that day regardless.<br/>**ONLY** - Payments only occur on business days. If a scheduled payment date is a non-business day the payment will be ignored
-          default: 'ON'
-          enum:
-          - AFTER
-          - BEFORE
-          - 'ON'
-          - ONLY
-        intervals:
-          type: array
-          description: An array of interval objects defining the payment schedule.  Each entry in the array is additive, in that it adds payments to the overall payment schedule.  If multiple intervals result in a payment on the same day then only one payment will be made. Must have at least one entry
-          items:
-            $ref: '#/components/schemas/BankingScheduledPaymentInterval'
-      description: Indicates that the schedule of payments is defined by a series of intervals. Mandatory if recurrenceUType is set to intervalSchedule
-    BankingScheduledPaymentRecurrenceOnceOff:
-      required:
-      - paymentDate
-      type: object
-      properties:
-        paymentDate:
-          type: string
-          description: The scheduled date for the once off payment
-          x-cds-type: DateString
-      description: Indicates that the payment is a once off payment on a specific future date. Mandatory if recurrenceUType is set to onceOff
-    ResponseBankingScheduledPaymentsList_data:
-      required:
-      - scheduledPayments
-      type: object
-      properties:
-        scheduledPayments:
-          type: array
-          description: The list of scheduled payments to return
-          items:
-            $ref: '#/components/schemas/BankingScheduledPayment'
-    BankingScheduledPaymentFrom:
-      required:
-      - accountId
-      type: object
-      properties:
-        accountId:
-          type: string
-          description: ID of the account that is the source of funds for the payment
-          x-cds-type: ASCIIString
-      description: Object containing details of the source of the payment. Currently only specifies an account ID but provided as an object to facilitate future extensibility and consistency with the to object
-    BankingAccount:
-      required:
-      - accountId
-      - accountOwnership
-      - displayName
-      - maskedNumber
-      - productCategory
-      - productName
-      type: object
-      properties:
-        accountId:
-          type: string
-          description: A unique ID of the account adhering to the standards for ID permanence
-          x-cds-type: ASCIIString
-        creationDate:
-          type: string
-          description: Date that the account was created (if known)
-          x-cds-type: DateString
-        displayName:
-          type: string
-          description: The display name of the account as defined by the bank. This should not incorporate account numbers or PANs. If it does the values should be masked according to the rules of the MaskedAccountString common type.
-        nickname:
-          type: string
-          description: A customer supplied nick name for the account
-        openStatus:
-          type: string
-          description: Open or closed status for the account. If not present then OPEN is assumed
-          default: OPEN
-          enum:
-          - OPEN
-          - CLOSED
-        isOwned:
-          type: boolean
-          description: Flag indicating that the customer associated with the authorisation is an owner of the account. Does not indicate sole ownership, however. If not present then 'true' is assumed
-          default: true
-          x-cds-type: Boolean
-        accountOwnership:
-          type: string
-          description: Value indicating the number of customers that have ownership of the account, according to the data holder's definition of account ownership. Does not indicate that all account owners are eligible consumers.
-          default: UNKNOWN
-          enum:
-          - UNKNOWN
-          - ONE_PARTY
-          - TWO_PARTY
-          - MANY_PARTY
-          - OTHER
-        maskedNumber:
-          type: string
-          description: A masked version of the account. Whether BSB/Account Number, Credit Card PAN or another number
-          x-cds-type: MaskedAccountString
-        productCategory:
-          $ref: '#/components/schemas/BankingProductCategory'
-        productName:
-          type: string
-          description: The unique identifier of the account as defined by the data holder (akin to model number for the account)
     RequestAccountIds:
       required:
       - data
@@ -2392,6 +2642,65 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/RequestAccountIds_data'
+        meta:
+          $ref: '#/components/schemas/Meta'
+    BankingTransactionDetail_extendedData:
+      required:
+      - service
+      type: object
+      properties:
+        payer:
+          type: string
+          description: Label of the originating payer. Mandatory for inbound payment
+        payee:
+          type: string
+          description: Label of the target PayID.  Mandatory for an outbound payment. The name assigned to the BSB/Account Number or PayID (by the owner of the PayID)
+        extensionUType:
+          type: string
+          description: Optional extended data provided specific to transaction originated via NPP
+          enum:
+          - x2p101Payload
+        x2p101Payload:
+          $ref: '#/components/schemas/BankingTransactionDetail_extendedData_x2p101Payload'
+        service:
+          type: string
+          description: 'Identifier of the applicable overlay service. Valid values are: X2P1.01'
+          enum:
+          - X2P1.01
+    ResponseBankingTransactionById:
+      required:
+      - data
+      - links
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BankingTransactionDetail'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+    ResponseBankingPayeeById:
+      required:
+      - data
+      - links
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BankingPayeeDetail'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+    ResponseBankingAccountById:
+      required:
+      - data
+      - links
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BankingAccountDetail'
+        links:
+          $ref: '#/components/schemas/Links'
         meta:
           $ref: '#/components/schemas/Meta'
     ResponseBankingDirectDebitAuthorisationList_data:
@@ -2404,7 +2713,45 @@ components:
           description: The list of authorisations returned
           items:
             $ref: '#/components/schemas/BankingDirectDebit'
-    ResponseBankingAccountList:
+    ResponseBankingAccountList_data:
+      required:
+      - accounts
+      type: object
+      properties:
+        accounts:
+          type: array
+          description: The list of accounts returned. If the filter results in an empty set then this array may have no records
+          items:
+            $ref: '#/components/schemas/BankingAccount'
+    BankingPayee:
+      required:
+      - nickname
+      - payeeId
+      - type
+      type: object
+      properties:
+        payeeId:
+          type: string
+          description: ID of the payee adhering to the rules of ID permanence
+          x-cds-type: ASCIIString
+        nickname:
+          type: string
+          description: The short display name of the payee as provided by the customer
+        description:
+          type: string
+          description: A description of the payee provided by the customer
+        type:
+          type: string
+          description: The type of payee. DOMESTIC means a registered payee for domestic payments including NPP. INTERNATIONAL means a registered payee for international payments. BILLER means a registered payee for BPAY
+          enum:
+          - DOMESTIC
+          - INTERNATIONAL
+          - BILLER
+        creationDate:
+          type: string
+          description: The date the payee was created by the customer
+          x-cds-type: DateString
+    ResponseBankingTransactionList:
       required:
       - data
       - links
@@ -2412,11 +2759,20 @@ components:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/ResponseBankingAccountList_data'
+          $ref: '#/components/schemas/ResponseBankingTransactionList_data'
         links:
           $ref: '#/components/schemas/LinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
+    ResponseBankingTransactionList_data:
+      required:
+      - transactions
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/BankingTransaction'
     BankingProductFee:
       required:
       - feeType
@@ -2575,61 +2931,84 @@ components:
       - fixedAmount
       - rateBased
       - variable
-    ResponseBankingTransactionById:
+    ResponseBankingAccountsBalanceById:
       required:
       - data
       - links
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/BankingTransactionDetail'
+          $ref: '#/components/schemas/BankingBalance'
         links:
           $ref: '#/components/schemas/Links'
         meta:
           $ref: '#/components/schemas/Meta'
-    BankingCreditCardAccount:
+    BankingInternationalPayee_beneficiaryDetails:
       required:
-      - minPaymentAmount
-      - paymentDueAmount
-      - paymentDueDate
+      - country
       type: object
       properties:
-        minPaymentAmount:
+        name:
           type: string
-          description: The minimum payment amount due for the next card payment
-          x-cds-type: AmountString
-        paymentDueAmount:
+          description: Name of the beneficiary
+        country:
           type: string
-          description: The amount due for the next card payment
-          x-cds-type: AmountString
-        paymentCurrency:
+          description: Country where the beneficiary resides. A valid [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country code
+          x-cds-type: ExternalRef
+        message:
           type: string
-          description: If absent assumes AUD
-          x-cds-type: CurrencyString
-        paymentDueDate:
-          type: string
-          description: Date that the next payment for the card is due
-          x-cds-type: DateString
-    ResponseErrorList_errors:
+          description: Response message for the payment
+    BankingDomesticPayeeAccount:
       required:
-      - code
-      - detail
-      - title
+      - accountNumber
+      - bsb
       type: object
       properties:
-        code:
+        accountName:
           type: string
-          description: Error code
-        title:
+          description: Name of the account to pay to
+        bsb:
           type: string
-          description: Error title
-        detail:
+          description: BSB of the account to pay to
+        accountNumber:
           type: string
-          description: Error details
+          description: Number of the account to pay to
+    BankingInternationalPayee_bankDetails_bankAddress:
+      required:
+      - address
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the recipient Bank
+        address:
+          type: string
+          description: Address of the recipient Bank
+    ResponseBankingTransactionByIdV2:
+      required:
+      - data
+      - links
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BankingTransactionDetailV2'
+        links:
+          $ref: '#/components/schemas/Links'
         meta:
-          type: object
-          properties: {}
-          description: Optional additional data for specific error types
+          $ref: '#/components/schemas/Meta'
+    Meta:
+      type: object
+    ResponseBankingAccountsBalanceList_data:
+      required:
+      - balances
+      type: object
+      properties:
+        balances:
+          type: array
+          description: The list of balances returned
+          items:
+            $ref: '#/components/schemas/BankingBalance'
     BankingAccountDetail:
       allOf:
       - $ref: '#/components/schemas/BankingAccount'
@@ -2703,177 +3082,75 @@ components:
         - termDeposit
         - creditCard
         - loan
-    BankingScheduledPayment:
+    BankingAccount:
       required:
-      - from
-      - payeeReference
-      - payerReference
-      - paymentSet
-      - recurrence
-      - scheduledPaymentId
-      - status
+      - accountId
+      - accountOwnership
+      - displayName
+      - maskedNumber
+      - productCategory
+      - productName
       type: object
       properties:
-        scheduledPaymentId:
+        accountId:
           type: string
-          description: A unique ID of the scheduled payment adhering to the standards for ID permanence
+          description: A unique ID of the account adhering to the standards for ID permanence
           x-cds-type: ASCIIString
+        creationDate:
+          type: string
+          description: Date that the account was created (if known)
+          x-cds-type: DateString
+        displayName:
+          type: string
+          description: The display name of the account as defined by the bank. This should not incorporate account numbers or PANs. If it does the values should be masked according to the rules of the MaskedAccountString common type.
         nickname:
           type: string
-          description: The short display name of the payee as provided by the customer
-        payerReference:
+          description: A customer supplied nick name for the account
+        openStatus:
           type: string
-          description: The reference for the transaction that will be used by the originating institution for the purposes of constructing a statement narrative on the payer account. Empty string if no data provided
-        payeeReference:
-          type: string
-          description: The reference for the transaction that will be provided by the originating institution. Empty string if no data provided
-        status:
-          type: string
-          description: Indicates whether the schedule is currently active. The value SKIP is equivalent to ACTIVE except that the customer has requested the next normal occurrence to be skipped.
+          description: Open or closed status for the account. If not present then OPEN is assumed
+          default: OPEN
           enum:
-          - ACTIVE
-          - SKIP
-          - INACTIVE
-        from:
-          $ref: '#/components/schemas/BankingScheduledPaymentFrom'
-        paymentSet:
-          type: array
-          items:
-            $ref: '#/components/schemas/BankingScheduledPaymentSet'
-        recurrence:
-          $ref: '#/components/schemas/BankingScheduledPaymentRecurrence'
-    BankingInternationalPayee_bankDetails:
-      required:
-      - accountNumber
-      - country
-      type: object
-      properties:
-        country:
+          - OPEN
+          - CLOSED
+        isOwned:
+          type: boolean
+          description: Flag indicating that the customer associated with the authorisation is an owner of the account. Does not indicate sole ownership, however. If not present then 'true' is assumed
+          default: true
+          x-cds-type: Boolean
+        accountOwnership:
           type: string
-          description: Country of the recipient institution. A valid [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country code
-          x-cds-type: ExternalRef
-        accountNumber:
-          type: string
-          description: Account Targeted for payment
-        bankAddress:
-          $ref: '#/components/schemas/BankingInternationalPayee_bankDetails_bankAddress'
-        beneficiaryBankBIC:
-          type: string
-          description: Swift bank code.  Aligns with standard [ISO 9362](https://www.iso.org/standard/60390.html)
-          x-cds-type: ExternalRef
-        fedWireNumber:
-          type: string
-          description: Number for Fedwire payment (Federal Reserve Wire Network)
-        sortCode:
-          type: string
-          description: Sort code used for account identification in some jurisdictions
-        chipNumber:
-          type: string
-          description: Number for the Clearing House Interbank Payments System
-        routingNumber:
-          type: string
-          description: International bank routing number
-        legalEntityIdentifier:
-          type: string
-          description: The legal entity identifier (LEI) for the beneficiary.  Aligns with [ISO 17442](https://www.iso.org/standard/59771.html)
-          x-cds-type: ExternalRef
-    BankingTransactionDetailV2:
-      allOf:
-      - $ref: '#/components/schemas/BankingTransaction'
-      - required:
-        - extendedData
-        type: object
-        properties:
-          extendedData:
-            $ref: '#/components/schemas/BankingTransactionDetail_extendedDataV2'
-    BankingTransactionDetail:
-      allOf:
-      - $ref: '#/components/schemas/BankingTransaction'
-      - required:
-        - extendedData
-        type: object
-        properties:
-          extendedData:
-            $ref: '#/components/schemas/BankingTransactionDetail_extendedData'
-    BankingDomesticPayeeCard:
-      required:
-      - cardNumber
-      type: object
-      properties:
-        cardNumber:
-          type: string
-          description: Name of the account to pay to
-          x-cds-type: MaskedPANString
-    ResponseBankingTransactionList:
-      required:
-      - data
-      - links
-      - meta
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/ResponseBankingTransactionList_data'
-        links:
-          $ref: '#/components/schemas/LinksPaginated'
-        meta:
-          $ref: '#/components/schemas/MetaPaginated'
-    BankingTransactionDetail_extendedData_nppPayload:
-      required:
-      - extendedDescription
-      - service
-      - serviceVersion
-      type: object
-      properties:
-        extendedDescription:
-          type: string
-          description: An extended string description. Only present if specified by the extensionUType field
-        endToEndId:
-          type: string
-          description: An end to end ID for the payment created at initiation
-        purposeCode:
-          type: string
-          description: Purpose of the payment. Format is defined by the NPP standards for the NPP overlay services including Osko (X2P1)
-        service:
-          type: string
-          description: Identifier of the applicable overlay service. The service is used in conjunction with the serviceVersion.
+          description: Value indicating the number of customers that have ownership of the account, according to the data holder's definition of account ownership. Does not indicate that all account owners are eligible consumers.
+          default: UNKNOWN
           enum:
-          - X2P1
-          - IFTI
-          - BSCT
-          - CATSCT
-        serviceVersion:
+          - UNKNOWN
+          - ONE_PARTY
+          - TWO_PARTY
+          - MANY_PARTY
+          - OTHER
+        maskedNumber:
           type: string
-          description: Two-digit NPP service overlay version with leading zero.
-    BankingAuthorisedEntity:
-      type: object
-      properties:
-        description:
+          description: A masked version of the account. Whether BSB/Account Number, Credit Card PAN or another number
+          x-cds-type: MaskedAccountString
+        productCategory:
+          $ref: '#/components/schemas/BankingProductCategory'
+        productName:
           type: string
-          description: Description of the authorised entity derived from previously executed direct debits
-        financialInstitution:
-          type: string
-          description: Name of the financial institution through which the direct debit will be executed. Is required unless the payment is made via a credit card scheme
-        abn:
-          type: string
-          description: Australian Business Number for the authorised entity
-        acn:
-          type: string
-          description: Australian Company Number for the authorised entity
-        arbn:
-          type: string
-          description: Australian Registered Body Number for the authorised entity
-    ResponseBankingPayeeById:
+          description: The unique identifier of the account as defined by the data holder (akin to model number for the account)
+    MetaPaginated:
       required:
-      - data
-      - links
+      - totalPages
+      - totalRecords
       type: object
       properties:
-        data:
-          $ref: '#/components/schemas/BankingPayeeDetail'
-        links:
-          $ref: '#/components/schemas/Links'
-        meta:
-          $ref: '#/components/schemas/Meta'
+        totalRecords:
+          type: integer
+          description: The total number of records in the full set. See [pagination](https://consumerdatastandardsaustralia.github.io/standards/#pagination).
+          x-cds-type: NaturalNumber
+        totalPages:
+          type: integer
+          description: The total number of pages in the full set. See [pagination](https://consumerdatastandardsaustralia.github.io/standards/#pagination).
+          x-cds-type: NaturalNumber
     CommonPhysicalAddress:
       required:
       - addressUType
@@ -2892,79 +3169,6 @@ components:
       x-conditional:
       - simple
       - paf
-    BankingPayee:
-      required:
-      - nickname
-      - payeeId
-      - type
-      type: object
-      properties:
-        payeeId:
-          type: string
-          description: ID of the payee adhering to the rules of ID permanence
-          x-cds-type: ASCIIString
-        nickname:
-          type: string
-          description: The short display name of the payee as provided by the customer
-        description:
-          type: string
-          description: A description of the payee provided by the customer
-        type:
-          type: string
-          description: The type of payee. DOMESTIC means a registered payee for domestic payments including NPP. INTERNATIONAL means a registered payee for international payments. BILLER means a registered payee for BPAY
-          enum:
-          - DOMESTIC
-          - INTERNATIONAL
-          - BILLER
-        creationDate:
-          type: string
-          description: The date the payee was created by the customer
-          x-cds-type: DateString
-    BankingProductCategory:
-      type: string
-      description: The category to which a product or account belongs. See [here](https://consumerdatastandardsaustralia.github.io/standards/#product-categories) for more details
-      enum:
-      - TRANS_AND_SAVINGS_ACCOUNTS
-      - TERM_DEPOSITS
-      - TRAVEL_CARDS
-      - REGULATED_TRUST_ACCOUNTS
-      - RESIDENTIAL_MORTGAGES
-      - CRED_AND_CHRG_CARDS
-      - PERS_LOANS
-      - MARGIN_LOANS
-      - LEASES
-      - TRADE_FINANCE
-      - OVERDRAFTS
-      - BUSINESS_LOANS
-    BankingScheduledPaymentRecurrenceEventBased:
-      required:
-      - description
-      type: object
-      properties:
-        description:
-          type: string
-          description: Description of the event and conditions that will result in the payment. Expected to be formatted for display to a customer
-      description: Indicates that the schedule of payments is defined according to an external event that cannot be predetermined. Mandatory if recurrenceUType is set to eventBased
-    BankingDomesticPayeePayId:
-      required:
-      - identifier
-      - type
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name assigned to the PayID by the owner of the PayID
-        identifier:
-          type: string
-          description: The identifier of the PayID (dependent on type)
-        type:
-          type: string
-          description: The type of the PayID
-          enum:
-          - EMAIL
-          - TELEPHONE
-          - ABN
-          - ORG_IDENTIFIER
     BankingDomesticPayee:
       required:
       - payeeAccountUType
@@ -2987,44 +3191,114 @@ components:
       - account
       - card
       - payId
-    BankingTermDepositAccount:
+    BankingDomesticPayeePayId:
       required:
-      - lodgementDate
-      - maturityDate
-      - maturityInstructions
+      - identifier
+      - type
       type: object
       properties:
-        lodgementDate:
+        name:
           type: string
-          description: The lodgement date of the original deposit
-          x-cds-type: DateString
-        maturityDate:
+          description: The name assigned to the PayID by the owner of the PayID
+        identifier:
           type: string
-          description: Maturity date for the term deposit
-          x-cds-type: DateString
-        maturityAmount:
+          description: The identifier of the PayID (dependent on type)
+        type:
           type: string
-          description: Amount to be paid upon maturity. If absent it implies the amount to paid is variable and cannot currently be calculated
-          x-cds-type: AmountString
-        maturityCurrency:
-          type: string
-          description: If absent assumes AUD
-          x-cds-type: CurrencyString
-        maturityInstructions:
-          type: string
-          description: Current instructions on action to be taken at maturity
+          description: The type of the PayID
           enum:
-          - ROLLED_OVER
-          - PAID_OUT_AT_MATURITY
-    ResponseBankingTransactionList_data:
+          - EMAIL
+          - TELEPHONE
+          - ABN
+          - ORG_IDENTIFIER
+    BankingTransactionDetail_extendedData_x2p101Payload:
       required:
-      - transactions
+      - extendedDescription
       type: object
       properties:
-        transactions:
+        extendedDescription:
+          type: string
+          description: An extended string description. Only present if specified by the extensionUType field
+        endToEndId:
+          type: string
+          description: An end to end ID for the payment created at initiation
+        purposeCode:
+          type: string
+          description: Purpose of the payment.  Format is defined by NPP standards for the x2p1.01 overlay service
+    BankingTransactionDetailV2:
+      allOf:
+      - $ref: '#/components/schemas/BankingTransaction'
+      - required:
+        - extendedData
+        type: object
+        properties:
+          extendedData:
+            $ref: '#/components/schemas/BankingTransactionDetail_extendedDataV2'
+    BankingInternationalPayee:
+      required:
+      - bankDetails
+      - beneficiaryDetails
+      type: object
+      properties:
+        beneficiaryDetails:
+          $ref: '#/components/schemas/BankingInternationalPayee_beneficiaryDetails'
+        bankDetails:
+          $ref: '#/components/schemas/BankingInternationalPayee_bankDetails'
+    BankingProductFeature:
+      required:
+      - featureType
+      type: object
+      properties:
+        featureType:
+          type: string
+          description: The type of feature described
+          enum:
+          - CARD_ACCESS
+          - ADDITIONAL_CARDS
+          - UNLIMITED_TXNS
+          - FREE_TXNS
+          - FREE_TXNS_ALLOWANCE
+          - LOYALTY_PROGRAM
+          - OFFSET
+          - OVERDRAFT
+          - REDRAW
+          - INSURANCE
+          - BALANCE_TRANSFERS
+          - INTEREST_FREE
+          - INTEREST_FREE_TRANSFERS
+          - DIGITAL_WALLET
+          - DIGITAL_BANKING
+          - NPP_PAYID
+          - NPP_ENABLED
+          - DONATE_INTEREST
+          - BILL_PAYMENT
+          - COMPLEMENTARY_PRODUCT_DISCOUNTS
+          - BONUS_REWARDS
+          - NOTIFICATIONS
+          - OTHER
+        additionalValue:
+          type: string
+          description: Generic field containing additional information relevant to the [featureType](https://consumerdatastandardsaustralia.github.io/standards/#tocSproductfeaturetypedoc) specified. Whether mandatory or not is dependent on the value of the [featureType.](https://consumerdatastandardsaustralia.github.io/standards/#tocSproductfeaturetypedoc)
+        additionalInfo:
+          type: string
+          description: Display text providing more information on the feature. Mandatory if the [feature type](https://consumerdatastandardsaustralia.github.io/standards/#tocSproductfeaturetypedoc) is set to OTHER
+        additionalInfoUri:
+          type: string
+          description: Link to a web page with more information on this feature
+          x-cds-type: URIString
+      x-conditional:
+      - additionalValue
+      - additionalInfo
+    ResponseBankingPayeeList_data:
+      required:
+      - payees
+      type: object
+      properties:
+        payees:
           type: array
+          description: The list of payees returned
           items:
-            $ref: '#/components/schemas/BankingTransaction'
+            $ref: '#/components/schemas/BankingPayee'
     BankingScheduledPaymentRecurrence:
       required:
       - recurrenceUType
@@ -3056,42 +3330,33 @@ components:
       - intervalSchedule
       - lastWeekDay
       - eventBased
-    BankingBalance:
+    BankingTransactionDetail_extendedData_nppPayload:
       required:
-      - accountId
-      - availableBalance
-      - currentBalance
+      - extendedDescription
+      - service
+      - serviceVersion
       type: object
       properties:
-        accountId:
+        extendedDescription:
           type: string
-          description: A unique ID of the account adhering to the standards for ID permanence
-          x-cds-type: ASCIIString
-        currentBalance:
+          description: An extended string description. Only present if specified by the extensionUType field
+        endToEndId:
           type: string
-          description: The balance of the account at this time. Should align to the balance available via other channels such as Internet Banking. Assumed to be negative if the customer has money owing
-          x-cds-type: AmountString
-        availableBalance:
+          description: An end to end ID for the payment created at initiation
+        purposeCode:
           type: string
-          description: Balance representing the amount of funds available for transfer. Assumed to be zero or positive
-          x-cds-type: AmountString
-        creditLimit:
+          description: Purpose of the payment. Format is defined by the NPP standards for the NPP overlay services including Osko (X2P1)
+        service:
           type: string
-          description: Object representing the maximum amount of credit that is available for this account. Assumed to be zero if absent
-          x-cds-type: AmountString
-        amortisedLimit:
+          description: Identifier of the applicable overlay service. The service is used in conjunction with the serviceVersion.
+          enum:
+          - X2P1
+          - IFTI
+          - BSCT
+          - CATSCT
+        serviceVersion:
           type: string
-          description: Object representing the available limit amortised according to payment schedule. Assumed to be zero if absent
-          x-cds-type: AmountString
-        currency:
-          type: string
-          description: The currency for the balance amounts. If absent assumed to be AUD
-          x-cds-type: CurrencyString
-        purses:
-          type: array
-          description: Optional array of balances for the account in other currencies. Included to support accounts that support multi-currency purses such as Travel Cards
-          items:
-            $ref: '#/components/schemas/BankingBalancePurse'
+          description: Two-digit NPP service overlay version with leading zero.
     BankingProductLendingRate:
       required:
       - lendingRateType
@@ -3238,336 +3503,55 @@ components:
                 x-cds-type: URIString
       x-conditional:
       - additionalValue
-    BankingTransactionDetail_extendedData_x2p101Payload:
+    BankingDomesticPayeeCard:
       required:
-      - extendedDescription
+      - cardNumber
       type: object
       properties:
-        extendedDescription:
+        cardNumber:
           type: string
-          description: An extended string description. Only present if specified by the extensionUType field
-        endToEndId:
-          type: string
-          description: An end to end ID for the payment created at initiation
-        purposeCode:
-          type: string
-          description: Purpose of the payment.  Format is defined by NPP standards for the x2p1.01 overlay service
-    ResponseBankingAccountList_data:
+          description: Name of the account to pay to
+          x-cds-type: MaskedPANString
+    BankingDirectDebit:
       required:
-      - accounts
+      - accountId
+      - authorisedEntity
       type: object
       properties:
-        accounts:
-          type: array
-          description: The list of accounts returned. If the filter results in an empty set then this array may have no records
-          items:
-            $ref: '#/components/schemas/BankingAccount'
-    CommonPAFAddress:
-      required:
-      - localityName
-      - postcode
-      - state
-      type: object
-      properties:
-        dpid:
-          type: string
-          description: Unique identifier for an address as defined by Australia Post.  Also known as Delivery Point Identifier
-        thoroughfareNumber1:
-          type: integer
-          description: Thoroughfare number for a property (first number in a property ranged address)
-          x-cds-type: PositiveInteger
-        thoroughfareNumber1Suffix:
-          type: string
-          description: Suffix for the thoroughfare number. Only relevant is thoroughfareNumber1 is populated
-        thoroughfareNumber2:
-          type: integer
-          description: Second thoroughfare number (only used if the property has a ranged address eg 23-25)
-          x-cds-type: PositiveInteger
-        thoroughfareNumber2Suffix:
-          type: string
-          description: Suffix for the second thoroughfare number. Only relevant is thoroughfareNumber2 is populated
-        flatUnitType:
-          type: string
-          description: Type of flat or unit for the address
-        flatUnitNumber:
-          type: string
-          description: Unit number (including suffix, if applicable)
-        floorLevelType:
-          type: string
-          description: Type of floor or level for the address
-        floorLevelNumber:
-          type: string
-          description: Floor or level number (including alpha characters)
-        lotNumber:
-          type: string
-          description: Allotment number for the address
-        buildingName1:
-          type: string
-          description: Building/Property name 1
-        buildingName2:
-          type: string
-          description: Building/Property name 2
-        streetName:
-          type: string
-          description: The name of the street
-        streetType:
-          type: string
-          description: The street type. Valid enumeration defined by Australia Post PAF code file
-        streetSuffix:
-          type: string
-          description: The street type suffix. Valid enumeration defined by Australia Post PAF code file
-        postalDeliveryType:
-          type: string
-          description: Postal delivery type. (eg. PO BOX). Valid enumeration defined by Australia Post PAF code file
-        postalDeliveryNumber:
-          type: integer
-          description: Postal delivery number if the address is a postal delivery type
-          x-cds-type: PositiveInteger
-        postalDeliveryNumberPrefix:
-          type: string
-          description: Postal delivery number prefix related to the postal delivery number
-        postalDeliveryNumberSuffix:
-          type: string
-          description: Postal delivery number suffix related to the postal delivery number
-        localityName:
-          type: string
-          description: Full name of locality
-        postcode:
-          type: string
-          description: Postcode for the locality
-        state:
-          type: string
-          description: State in which the address belongs. Valid enumeration defined by Australia Post PAF code file [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf). NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
-      description: Australian address formatted according to the file format defined by the [PAF file format](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf)
-    BankingLoanAccount:
-      required:
-      - loanEndDate
-      - nextInstalmentDate
-      - repaymentFrequency
-      type: object
-      properties:
-        originalStartDate:
-          type: string
-          description: Optional original start date for the loan
-          x-cds-type: DateString
-        originalLoanAmount:
-          type: string
-          description: Optional original loan value
-          x-cds-type: AmountString
-        originalLoanCurrency:
-          type: string
-          description: If absent assumes AUD
-          x-cds-type: CurrencyString
-        loanEndDate:
-          type: string
-          description: Date that the loan is due to be repaid in full
-          x-cds-type: DateString
-        nextInstalmentDate:
-          type: string
-          description: Next date that an instalment is required
-          x-cds-type: DateString
-        minInstalmentAmount:
-          type: string
-          description: Minimum amount of next instalment
-          x-cds-type: AmountString
-        minInstalmentCurrency:
-          type: string
-          description: If absent assumes AUD
-          x-cds-type: CurrencyString
-        maxRedraw:
-          type: string
-          description: Maximum amount of funds that can be redrawn. If not present redraw is not available even if the feature exists for the account
-          x-cds-type: AmountString
-        maxRedrawCurrency:
-          type: string
-          description: If absent assumes AUD
-          x-cds-type: CurrencyString
-        minRedraw:
-          type: string
-          description: Minimum redraw amount
-          x-cds-type: AmountString
-        minRedrawCurrency:
-          type: string
-          description: If absent assumes AUD
-          x-cds-type: CurrencyString
-        offsetAccountEnabled:
-          type: boolean
-          description: Set to true if one or more offset accounts are configured for this loan account
-          x-cds-type: Boolean
-        offsetAccountIds:
-          type: array
-          description: The accountIDs of the configured offset accounts attached to this loan. Only offset accounts that can be accessed under the current authorisation should be included. It is expected behaviour that offsetAccountEnabled is set to true but the offsetAccountIds field is absent or empty. This represents a situation where an offset account exists but details can not be accessed under the current authorisation
-          items:
-            type: string
-            x-cds-type: ASCIIString
-        repaymentType:
-          type: string
-          description: Options in place for repayments. If absent defaults to PRINCIPAL_AND_INTEREST
-          default: PRINCIPAL_AND_INTEREST
-          enum:
-          - INTEREST_ONLY
-          - PRINCIPAL_AND_INTEREST
-        repaymentFrequency:
-          type: string
-          description: The expected or required repayment frequency. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax)
-          x-cds-type: ExternalRef
-    ResponseBankingPayeeList:
-      required:
-      - data
-      - links
-      - meta
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/ResponseBankingPayeeList_data'
-        links:
-          $ref: '#/components/schemas/LinksPaginated'
-        meta:
-          $ref: '#/components/schemas/MetaPaginated'
-    ResponseBankingAccountById:
-      required:
-      - data
-      - links
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/BankingAccountDetail'
-        links:
-          $ref: '#/components/schemas/Links'
-        meta:
-          $ref: '#/components/schemas/Meta'
-    LinksPaginated:
-      required:
-      - self
-      type: object
-      properties:
-        self:
-          type: string
-          description: Fully qualified link that generated the current response document
-          x-cds-type: URIString
-        first:
-          type: string
-          description: URI to the first page of this set. Mandatory if this response is not the first page
-          x-cds-type: URIString
-        prev:
-          type: string
-          description: URI to the previous page of this set. Mandatory if this response is not the first page
-          x-cds-type: URIString
-        next:
-          type: string
-          description: URI to the next page of this set. Mandatory if this response is not the last page
-          x-cds-type: URIString
-        last:
-          type: string
-          description: URI to the last page of this set. Mandatory if this response is not the last page
-          x-cds-type: URIString
-      x-conditional:
-      - prev
-      - next
-      - first
-      - last
-    BankingTransactionDetail_extendedData:
-      required:
-      - service
-      type: object
-      properties:
-        payer:
-          type: string
-          description: Label of the originating payer. Mandatory for inbound payment
-        payee:
-          type: string
-          description: Label of the target PayID.  Mandatory for an outbound payment. The name assigned to the BSB/Account Number or PayID (by the owner of the PayID)
-        extensionUType:
-          type: string
-          description: Optional extended data provided specific to transaction originated via NPP
-          enum:
-          - x2p101Payload
-        x2p101Payload:
-          $ref: '#/components/schemas/BankingTransactionDetail_extendedData_x2p101Payload'
-        service:
-          type: string
-          description: 'Identifier of the applicable overlay service. Valid values are: X2P1.01'
-          enum:
-          - X2P1.01
-    BankingPayeeDetail:
-      allOf:
-      - $ref: '#/components/schemas/BankingPayee'
-      - required:
-        - payeeUType
-        type: object
-        properties:
-          payeeUType:
-            type: string
-            description: Type of object included that describes the payee in detail
-            enum:
-            - domestic
-            - biller
-            - international
-          domestic:
-            $ref: '#/components/schemas/BankingDomesticPayee'
-          biller:
-            $ref: '#/components/schemas/BankingBillerPayee'
-          international:
-            $ref: '#/components/schemas/BankingInternationalPayee'
-        x-conditional:
-        - domestic
-        - biller
-        - international
-    BankingScheduledPaymentTo:
-      required:
-      - toUType
-      type: object
-      properties:
-        toUType:
-          type: string
-          description: The type of object provided that specifies the destination of the funds for the payment.
-          enum:
-          - accountId
-          - payeeId
-          - domestic
-          - biller
-          - international
         accountId:
           type: string
-          description: Present if toUType is set to accountId. Indicates that the payment is to another account that is accessible under the current consent
+          description: A unique ID of the account adhering to the standards for ID permanence.
           x-cds-type: ASCIIString
-        payeeId:
+        authorisedEntity:
+          $ref: '#/components/schemas/BankingAuthorisedEntity'
+        lastDebitDateTime:
           type: string
-          description: Present if toUType is set to payeeId. Indicates that the payment is to registered payee that can be accessed using the payee end point. If the Bank Payees scope has not been consented to then a payeeId should not be provided and the full payee details should be provided instead
-          x-cds-type: ASCIIString
-        domestic:
-          $ref: '#/components/schemas/BankingDomesticPayee'
-        biller:
-          $ref: '#/components/schemas/BankingBillerPayee'
-        international:
-          $ref: '#/components/schemas/BankingInternationalPayee'
-      description: Object containing details of the destination of the payment. Used to specify a variety of payment destination types
-      x-conditional:
-      - accountId
-      - payeeId
-      - domestic
-      - biller
-      - international
-    BankingInternationalPayee:
+          description: The date and time of the last debit executed under this authorisation
+          x-cds-type: DateTimeString
+        lastDebitAmount:
+          type: string
+          description: The amount of the last debit executed under this authorisation
+          x-cds-type: AmountString
+    ResponseErrorList_errors:
       required:
-      - bankDetails
-      - beneficiaryDetails
+      - code
+      - detail
+      - title
       type: object
       properties:
-        beneficiaryDetails:
-          $ref: '#/components/schemas/BankingInternationalPayee_beneficiaryDetails'
-        bankDetails:
-          $ref: '#/components/schemas/BankingInternationalPayee_bankDetails'
-    ResponseBankingPayeeList_data:
-      required:
-      - payees
-      type: object
-      properties:
-        payees:
-          type: array
-          description: The list of payees returned
-          items:
-            $ref: '#/components/schemas/BankingPayee'
+        code:
+          type: string
+          description: Error code
+        title:
+          type: string
+          description: Error title
+        detail:
+          type: string
+          description: Error details
+        meta:
+          type: object
+          properties: {}
+          description: Optional additional data for specific error types
     BankingTransaction:
       required:
       - accountId
@@ -3656,63 +3640,83 @@ components:
       x-conditional:
       - transactionId
       - postingDateTime
-    BankingInternationalPayee_beneficiaryDetails:
+    CommonPAFAddress:
       required:
-      - country
+      - localityName
+      - postcode
+      - state
       type: object
       properties:
-        name:
+        dpid:
           type: string
-          description: Name of the beneficiary
-        country:
+          description: Unique identifier for an address as defined by Australia Post.  Also known as Delivery Point Identifier
+        thoroughfareNumber1:
+          type: integer
+          description: Thoroughfare number for a property (first number in a property ranged address)
+          x-cds-type: PositiveInteger
+        thoroughfareNumber1Suffix:
           type: string
-          description: Country where the beneficiary resides. A valid [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country code
-          x-cds-type: ExternalRef
-        message:
+          description: Suffix for the thoroughfare number. Only relevant is thoroughfareNumber1 is populated
+        thoroughfareNumber2:
+          type: integer
+          description: Second thoroughfare number (only used if the property has a ranged address eg 23-25)
+          x-cds-type: PositiveInteger
+        thoroughfareNumber2Suffix:
           type: string
-          description: Response message for the payment
-    ResponseErrorList:
-      required:
-      - errors
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResponseErrorList_errors'
-    BankingDirectDebit:
-      required:
-      - accountId
-      - authorisedEntity
-      type: object
-      properties:
-        accountId:
+          description: Suffix for the second thoroughfare number. Only relevant is thoroughfareNumber2 is populated
+        flatUnitType:
           type: string
-          description: A unique ID of the account adhering to the standards for ID permanence.
-          x-cds-type: ASCIIString
-        authorisedEntity:
-          $ref: '#/components/schemas/BankingAuthorisedEntity'
-        lastDebitDateTime:
+          description: Type of flat or unit for the address
+        flatUnitNumber:
           type: string
-          description: The date and time of the last debit executed under this authorisation
-          x-cds-type: DateTimeString
-        lastDebitAmount:
+          description: Unit number (including suffix, if applicable)
+        floorLevelType:
           type: string
-          description: The amount of the last debit executed under this authorisation
-          x-cds-type: AmountString
-    ResponseBankingDirectDebitAuthorisationList:
-      required:
-      - data
-      - links
-      - meta
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/ResponseBankingDirectDebitAuthorisationList_data'
-        links:
-          $ref: '#/components/schemas/LinksPaginated'
-        meta:
-          $ref: '#/components/schemas/MetaPaginated'
+          description: Type of floor or level for the address
+        floorLevelNumber:
+          type: string
+          description: Floor or level number (including alpha characters)
+        lotNumber:
+          type: string
+          description: Allotment number for the address
+        buildingName1:
+          type: string
+          description: Building/Property name 1
+        buildingName2:
+          type: string
+          description: Building/Property name 2
+        streetName:
+          type: string
+          description: The name of the street
+        streetType:
+          type: string
+          description: The street type. Valid enumeration defined by Australia Post PAF code file
+        streetSuffix:
+          type: string
+          description: The street type suffix. Valid enumeration defined by Australia Post PAF code file
+        postalDeliveryType:
+          type: string
+          description: Postal delivery type. (eg. PO BOX). Valid enumeration defined by Australia Post PAF code file
+        postalDeliveryNumber:
+          type: integer
+          description: Postal delivery number if the address is a postal delivery type
+          x-cds-type: PositiveInteger
+        postalDeliveryNumberPrefix:
+          type: string
+          description: Postal delivery number prefix related to the postal delivery number
+        postalDeliveryNumberSuffix:
+          type: string
+          description: Postal delivery number suffix related to the postal delivery number
+        localityName:
+          type: string
+          description: Full name of locality
+        postcode:
+          type: string
+          description: Postcode for the locality
+        state:
+          type: string
+          description: State in which the address belongs. Valid enumeration defined by Australia Post PAF code file [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf). NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
+      description: Australian address formatted according to the file format defined by the [PAF file format](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf)
     Links:
       required:
       - self
@@ -3722,167 +3726,70 @@ components:
           type: string
           description: Fully qualified link that generated the current response document
           x-cds-type: URIString
-    CommonSimpleAddress:
+    BankingScheduledPayment:
       required:
-      - addressLine1
-      - city
-      - state
+      - from
+      - payeeReference
+      - payerReference
+      - paymentSet
+      - recurrence
+      - scheduledPaymentId
+      - status
       type: object
       properties:
-        mailingName:
+        scheduledPaymentId:
           type: string
-          description: Name of the individual or business formatted for inclusion in an address used for physical mail
-        addressLine1:
+          description: A unique ID of the scheduled payment adhering to the standards for ID permanence
+          x-cds-type: ASCIIString
+        nickname:
           type: string
-          description: First line of the standard address object
-        addressLine2:
+          description: The short display name of the payee as provided by the customer
+        payerReference:
           type: string
-          description: Second line of the standard address object
-        addressLine3:
+          description: The reference for the transaction that will be used by the originating institution for the purposes of constructing a statement narrative on the payer account. Empty string if no data provided
+        payeeReference:
           type: string
-          description: Third line of the standard address object
-        postcode:
+          description: The reference for the transaction that will be provided by the originating institution. Empty string if no data provided
+        status:
           type: string
-          description: Mandatory for Australian addresses
-        city:
-          type: string
-          description: Name of the city or locality
-        state:
-          type: string
-          description: Free text if the country is not Australia. If country is Australia then must be one of the values defined by the [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf) in the PAF file format. NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
-        country:
-          type: string
-          description: A valid [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country code. Australia (AUS) is assumed if country is not present.
-          default: AUS
-          x-cds-type: ExternalRef
-      x-conditional:
-      - postcode
-    MetaPaginated:
-      required:
-      - totalPages
-      - totalRecords
-      type: object
-      properties:
-        totalRecords:
-          type: integer
-          description: The total number of records in the full set. See [pagination](https://consumerdatastandardsaustralia.github.io/standards/#pagination).
-          x-cds-type: NaturalNumber
-        totalPages:
-          type: integer
-          description: The total number of pages in the full set. See [pagination](https://consumerdatastandardsaustralia.github.io/standards/#pagination).
-          x-cds-type: NaturalNumber
-    BankingScheduledPaymentRecurrenceLastWeekday:
-      required:
-      - interval
-      - lastWeekDay
-      type: object
-      properties:
-        finalPaymentDate:
-          type: string
-          description: The limit date after which no more payments should be made using this schedule. If both finalPaymentDate and paymentsRemaining are present then payments will stop according to the most constraining value. If neither field is present the payments will continue indefinitely
-          x-cds-type: DateString
-        paymentsRemaining:
-          type: integer
-          description: Indicates the number of payments remaining in the schedule. If both finalPaymentDate and paymentsRemaining are present then payments will stop according to the most constraining value. If neither field is present the payments will continue indefinitely
-          x-cds-type: PositiveInteger
-        interval:
-          type: string
-          description: The interval for the payment. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax) with components less than a day in length ignored. This duration defines the period between payments starting with nextPaymentDate
-          x-cds-type: ExternalRef
-        lastWeekDay:
-          type: string
-          description: The weekDay specified. The payment will occur on the last occurrence of this weekday in the interval.
+          description: Indicates whether the schedule is currently active. The value SKIP is equivalent to ACTIVE except that the customer has requested the next normal occurrence to be skipped.
           enum:
-          - MON
-          - TUE
-          - WED
-          - THU
-          - FRI
-          - SAT
-          - SUN
-        nonBusinessDayTreatment:
-          type: string
-          description: Enumerated field giving the treatment where a scheduled payment date is not a business day. If absent assumed to be ON.<br/>**AFTER** - If a scheduled payment date is a non-business day the payment will be made on the first business day after the scheduled payment date.<br/>**BEFORE** - If a scheduled payment date is a non-business day the payment will be made on the first business day before the scheduled payment date.<br/>**ON** - If a scheduled payment date is a non-business day the payment will be made on that day regardless.<br/>**ONLY** - Payments only occur on business days. If a scheduled payment date is a non-business day the payment will be ignored
-          default: 'ON'
-          enum:
-          - AFTER
-          - BEFORE
-          - 'ON'
-          - ONLY
-      description: Indicates that the schedule of payments is defined according to the last occurrence of a specific weekday in an interval. Mandatory if recurrenceUType is set to lastWeekDay
-    BankingProductFeature:
-      required:
-      - featureType
-      type: object
-      properties:
-        featureType:
-          type: string
-          description: The type of feature described
-          enum:
-          - CARD_ACCESS
-          - ADDITIONAL_CARDS
-          - UNLIMITED_TXNS
-          - FREE_TXNS
-          - FREE_TXNS_ALLOWANCE
-          - LOYALTY_PROGRAM
-          - OFFSET
-          - OVERDRAFT
-          - REDRAW
-          - INSURANCE
-          - BALANCE_TRANSFERS
-          - INTEREST_FREE
-          - INTEREST_FREE_TRANSFERS
-          - DIGITAL_WALLET
-          - DIGITAL_BANKING
-          - NPP_PAYID
-          - NPP_ENABLED
-          - DONATE_INTEREST
-          - BILL_PAYMENT
-          - COMPLEMENTARY_PRODUCT_DISCOUNTS
-          - BONUS_REWARDS
-          - NOTIFICATIONS
-          - OTHER
-        additionalValue:
-          type: string
-          description: Generic field containing additional information relevant to the [featureType](https://consumerdatastandardsaustralia.github.io/standards/#tocSproductfeaturetypedoc) specified. Whether mandatory or not is dependent on the value of the [featureType.](https://consumerdatastandardsaustralia.github.io/standards/#tocSproductfeaturetypedoc)
-        additionalInfo:
-          type: string
-          description: Display text providing more information on the feature. Mandatory if the [feature type](https://consumerdatastandardsaustralia.github.io/standards/#tocSproductfeaturetypedoc) is set to OTHER
-        additionalInfoUri:
-          type: string
-          description: Link to a web page with more information on this feature
-          x-cds-type: URIString
-      x-conditional:
-      - additionalValue
-      - additionalInfo
-    ResponseBankingTransactionByIdV2:
-      required:
-      - data
-      - links
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/BankingTransactionDetailV2'
-        links:
-          $ref: '#/components/schemas/Links'
-        meta:
-          $ref: '#/components/schemas/Meta'
-    BankingDomesticPayeeAccount:
-      required:
-      - accountNumber
-      - bsb
-      type: object
-      properties:
-        accountName:
-          type: string
-          description: Name of the account to pay to
-        bsb:
-          type: string
-          description: BSB of the account to pay to
-        accountNumber:
-          type: string
-          description: Number of the account to pay to
-    ResponseBankingAccountsBalanceList:
+          - ACTIVE
+          - SKIP
+          - INACTIVE
+        from:
+          $ref: '#/components/schemas/BankingScheduledPaymentFrom'
+        paymentSet:
+          type: array
+          items:
+            $ref: '#/components/schemas/BankingScheduledPaymentSet'
+        recurrence:
+          $ref: '#/components/schemas/BankingScheduledPaymentRecurrence'
+    BankingPayeeDetail:
+      allOf:
+      - $ref: '#/components/schemas/BankingPayee'
+      - required:
+        - payeeUType
+        type: object
+        properties:
+          payeeUType:
+            type: string
+            description: Type of object included that describes the payee in detail
+            enum:
+            - domestic
+            - biller
+            - international
+          domestic:
+            $ref: '#/components/schemas/BankingDomesticPayee'
+          biller:
+            $ref: '#/components/schemas/BankingBillerPayee'
+          international:
+            $ref: '#/components/schemas/BankingInternationalPayee'
+        x-conditional:
+        - domestic
+        - biller
+        - international
+    ResponseBankingAccountList:
       required:
       - data
       - links
@@ -3890,11 +3797,76 @@ components:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/ResponseBankingAccountsBalanceList_data'
+          $ref: '#/components/schemas/ResponseBankingAccountList_data'
         links:
           $ref: '#/components/schemas/LinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
+    LinksPaginated:
+      required:
+      - self
+      type: object
+      properties:
+        self:
+          type: string
+          description: Fully qualified link that generated the current response document
+          x-cds-type: URIString
+        first:
+          type: string
+          description: URI to the first page of this set. Mandatory if this response is not the first page
+          x-cds-type: URIString
+        prev:
+          type: string
+          description: URI to the previous page of this set. Mandatory if this response is not the first page
+          x-cds-type: URIString
+        next:
+          type: string
+          description: URI to the next page of this set. Mandatory if this response is not the last page
+          x-cds-type: URIString
+        last:
+          type: string
+          description: URI to the last page of this set. Mandatory if this response is not the last page
+          x-cds-type: URIString
+      x-conditional:
+      - prev
+      - next
+      - first
+      - last
+    BankingInternationalPayee_bankDetails:
+      required:
+      - accountNumber
+      - country
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country of the recipient institution. A valid [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country code
+          x-cds-type: ExternalRef
+        accountNumber:
+          type: string
+          description: Account Targeted for payment
+        bankAddress:
+          $ref: '#/components/schemas/BankingInternationalPayee_bankDetails_bankAddress'
+        beneficiaryBankBIC:
+          type: string
+          description: Swift bank code.  Aligns with standard [ISO 9362](https://www.iso.org/standard/60390.html)
+          x-cds-type: ExternalRef
+        fedWireNumber:
+          type: string
+          description: Number for Fedwire payment (Federal Reserve Wire Network)
+        sortCode:
+          type: string
+          description: Sort code used for account identification in some jurisdictions
+        chipNumber:
+          type: string
+          description: Number for the Clearing House Interbank Payments System
+        routingNumber:
+          type: string
+          description: International bank routing number
+        legalEntityIdentifier:
+          type: string
+          description: The legal entity identifier (LEI) for the beneficiary.  Aligns with [ISO 17442](https://www.iso.org/standard/59771.html)
+          x-cds-type: ExternalRef
     RequestAccountIds_data:
       required:
       - accountIds
@@ -3906,35 +3878,63 @@ components:
             type: string
             description: Array of specific accountIds to obtain authorisations for
             x-cds-type: ASCIIString
-    BankingScheduledPaymentInterval:
+    BankingTermDepositAccount:
       required:
-      - interval
+      - lodgementDate
+      - maturityDate
+      - maturityInstructions
       type: object
       properties:
-        interval:
+        lodgementDate:
           type: string
-          description: An interval for the payment. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations)  (excludes recurrence syntax) with components less than a day in length ignored. This duration defines the period between payments starting with nextPaymentDate
-          x-cds-type: ExternalRef
-        dayInInterval:
+          description: The lodgement date of the original deposit
+          x-cds-type: DateString
+        maturityDate:
           type: string
-          description: Uses an interval to define the ordinal day within the interval defined by the interval field on which the payment occurs. If the resulting duration is 0 days in length or larger than the number of days in the interval then the payment will occur on the last day of the interval. A duration of 1 day indicates the first day of the interval. If absent the assumed value is P1D. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax) with components less than a day in length ignored. The first day of a week is considered to be Monday.
-          x-cds-type: ExternalRef
-    BankingTransactionDetail_extendedDataV2:
-      type: object
-      properties:
-        payer:
+          description: Maturity date for the term deposit
+          x-cds-type: DateString
+        maturityAmount:
           type: string
-          description: Label of the originating payer. Mandatory for inbound payment
-        payee:
+          description: Amount to be paid upon maturity. If absent it implies the amount to paid is variable and cannot currently be calculated
+          x-cds-type: AmountString
+        maturityCurrency:
           type: string
-          description: Label of the target PayID.  Mandatory for an outbound payment. The name assigned to the BSB/Account Number or PayID (by the owner of the PayID)
-        extensionUType:
+          description: If absent assumes AUD
+          x-cds-type: CurrencyString
+        maturityInstructions:
           type: string
-          description: Optional extended data provided specific to transaction originated via NPP
+          description: Current instructions on action to be taken at maturity
           enum:
-          - nppPayload
-        nppPayload:
-          $ref: '#/components/schemas/BankingTransactionDetail_extendedData_nppPayload'
+          - ROLLED_OVER
+          - PAID_OUT_AT_MATURITY
+    BankingScheduledPaymentRecurrenceIntervalSchedule:
+      required:
+      - intervals
+      type: object
+      properties:
+        finalPaymentDate:
+          type: string
+          description: The limit date after which no more payments should be made using this schedule. If both finalPaymentDate and paymentsRemaining are present then payments will stop according to the most constraining value. If neither field is present the payments will continue indefinitely
+          x-cds-type: DateString
+        paymentsRemaining:
+          type: integer
+          description: Indicates the number of payments remaining in the schedule. If both finalPaymentDate and paymentsRemaining are present then payments will stop according to the most constraining value, If neither field is present the payments will continue indefinitely
+          x-cds-type: PositiveInteger
+        nonBusinessDayTreatment:
+          type: string
+          description: Enumerated field giving the treatment where a scheduled payment date is not a business day. If absent assumed to be ON.<br/>**AFTER** - If a scheduled payment date is a non-business day the payment will be made on the first business day after the scheduled payment date.<br/>**BEFORE** - If a scheduled payment date is a non-business day the payment will be made on the first business day before the scheduled payment date.<br/>**ON** - If a scheduled payment date is a non-business day the payment will be made on that day regardless.<br/>**ONLY** - Payments only occur on business days. If a scheduled payment date is a non-business day the payment will be ignored
+          default: 'ON'
+          enum:
+          - AFTER
+          - BEFORE
+          - 'ON'
+          - ONLY
+        intervals:
+          type: array
+          description: An array of interval objects defining the payment schedule.  Each entry in the array is additive, in that it adds payments to the overall payment schedule.  If multiple intervals result in a payment on the same day then only one payment will be made. Must have at least one entry
+          items:
+            $ref: '#/components/schemas/BankingScheduledPaymentInterval'
+      description: Indicates that the schedule of payments is defined by a series of intervals. Mandatory if recurrenceUType is set to intervalSchedule
   securitySchemes:
     PSUOAuth2Security:
       type: oauth2
