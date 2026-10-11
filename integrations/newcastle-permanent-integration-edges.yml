@@ -1,0 +1,18 @@
+generated: '2026-10-12'
+method: none
+source:
+- https://zapier.com/apps/newcastle-permanent/integrations
+- https://zapier.com/apps/newcastle-permanent-building-society/integrations
+- https://n8n.io/integrations/newcastle-permanent/
+- https://composio.dev/toolkits/newcastle-permanent
+- https://monid.ai/tools/newcastle-permanent
+checked:
+- https://composio.dev/toolkits/newcastle-permanent
+- https://monid.ai/tools/newcastle-permanent
+- https://n8n.io/integrations/newcastle-permanent/
+- https://zapier.com/apps/newcastle-permanent-building-society/integrations
+- https://zapier.com/apps/newcastle-permanent/integrations
+summary: null
+marketplace_apps: []
+edges: []
+templates: []
