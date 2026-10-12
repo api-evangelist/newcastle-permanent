@@ -1,5 +1,5 @@
 generated: '2026-10-12'
-method: none
+method: searched
 source:
 - https://zapier.com/apps/newcastle-permanent/integrations
 - https://zapier.com/apps/newcastle-permanent-building-society/integrations
@@ -7,6 +7,7 @@ source:
 - https://composio.dev/toolkits/newcastle-permanent
 - https://monid.ai/tools/newcastle-permanent
 checked:
+- https://api.cdr.gov.au/cdr-register/v1/all/data-holders/brands/summary
 - https://composio.dev/toolkits/newcastle-permanent
 - https://monid.ai/tools/newcastle-permanent
 - https://n8n.io/integrations/newcastle-permanent/
@@ -14,5 +15,22 @@ checked:
 - https://zapier.com/apps/newcastle-permanent/integrations
 summary: null
 marketplace_apps: []
-edges: []
+edges:
+- partner_name: Consumer Data Right
+  partner: null
+  type: contract
+  channel: regulator-register
+  relationship: standard-participant
+  direction: partner-built
+  evidence: https://api.cdr.gov.au/cdr-register/v1/all/data-holders/brands/summary
+  contract_reference:
+    register: CDR Register (Australia, ACCC)
+    spec_file: null
+    role: data-holder
+    registered_name: Newcastle Permanent
+    register_id: d5306c4e-ea83-ec11-a82b-000d3a884a20
+    matched_domain: newcastlepermanent.com.au
+    api_families: null
+    detected_by: sweep-standard-registers.py
+    detected: '2026-10-12'
 templates: []
