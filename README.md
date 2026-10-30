@@ -1,4 +1,4 @@
-# Newcastle Permanent Building Society (newcastle-permanent)
+# Newcastle Permanent Building Society
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,57 +64,137 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Newcastle Permanent Building Society is a customer-owned Australian authorised deposit-taking institution (ADI) founded in 1903 and headquartered in Newcastle, New South Wales. As a mutual, it is owned by its members rather than shareholders. In March 2023 it merged with Greater Bank to form Newcastle Greater Mutual Group (NGM Group), one of Australia's largest customer-owned banks, while Newcastle Permanent continues to operate as a consumer brand. As a regulated ADI it is a data holder under Australia's Consumer Data Right (CDR / Open Banking) and exposes a live, public, unauthenticated Product Reference Data (PRD) API conforming to the Data Standards Body Consumer Data Standards.
+Newcastle Permanent Building Society is a customer-owned Australian authorised deposit-taking institution (ADI) founded in 1903 and headquartered in Newcastle, New South Wales. As a mutual, it is owned by its members rather than shareholders, and it provides retail banking, home loans, savings, term deposits, and insurance to communities across NSW. In March 2023 it merged with Greater Bank to form Newcastle Greater Mutual Group (NGM Group), one of Australia's largest customer-owned banks, while Newcastle Permanent continues to operate as a consumer brand. As a regulated ADI it is a data holder under Australia's Consumer Data Right (CDR / Open Banking) and exposes a live, public, unauthenticated Product Reference Data (PRD) API conforming to the Data Standards Body Consumer Data Standards, alongside an NPBS Innovation Sandbox and Marketplace developer portal.
 
-**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/newcastle-permanent/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/newcastle-permanent/refs/heads/main/apis.yml)
+**Areas:** Finance · Banks · Open Banking · CDR · Consumer Banking · Building Society · Mutual · Australia
 
-## Tags
+## Newcastle Permanent Building Society on APIs.io
 
-- Financial
-- Banks
-- Open Banking
-- CDR
-- Consumer Banking
-- Building Society
-- Mutual
-- Australia
+Everything profiled for Newcastle Permanent Building Society is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/newcastle-permanent/](https://apis.io/providers/newcastle-permanent/)** — or go straight to one of the APIs or properties below.
 
-## Timestamps
+### APIs (9)
 
-- **Created:** 2026-07-20
-- **Modified:** 2026-07-20
+- [Newcastle Permanent Building Society Banking Account Balances API](https://apis.io/apis/newcastle-permanent/newcastle-permanent-banking-account-balances-api/) — Banking Account Balance endpoints
+- [Newcastle Permanent Building Society Banking Account Direct Debits API](https://apis.io/apis/newcastle-permanent/newcastle-permanent-banking-account-direct-debits-api/) — Banking Account Direct Debit endpoints
+- [Newcastle Permanent Building Society Banking Account Scheduled Payments API](https://apis.io/apis/newcastle-permanent/newcastle-permanent-banking-account-scheduled-payments-api/) — Banking Account Scheduled Payment endpoints
+- [Newcastle Permanent Building Society Banking Account Transactions API](https://apis.io/apis/newcastle-permanent/newcastle-permanent-banking-account-transactions-api/) — Banking Account Transaction endpoints
+- [Newcastle Permanent Building Society Banking Accounts API](https://apis.io/apis/newcastle-permanent/newcastle-permanent-banking-accounts-api/) — Banking Account endpoints
+- [Newcastle Permanent Building Society Banking API](https://apis.io/apis/newcastle-permanent/newcastle-permanent-banking-api/) — The Banking API from Newcastle Permanent Building Society — 14 operation(s) for banking.
+- [Newcastle Permanent Building Society Banking Payees API](https://apis.io/apis/newcastle-permanent/newcastle-permanent-banking-payees-api/) — Banking Payee endpoints
+- [Newcastle Permanent Building Society Banking Products API](https://apis.io/apis/newcastle-permanent/newcastle-permanent-banking-products-api/) — Banking Product endpoints
+- [Newcastle Permanent Building Society Common API](https://apis.io/apis/newcastle-permanent/newcastle-permanent-common-api/) — The Common API from Newcastle Permanent Building Society — 2 operation(s) for common.
 
-## APIs
+### Published properties
 
-### Newcastle Permanent Building Society CDR Product Reference Data API
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-Live, public, unauthenticated Consumer Data Right (CDR) Product Reference Data (PRD) API exposing Newcastle Permanent's banking product catalogue (term deposits, savings, transaction accounts, home loans, credit cards and more) under the standard Consumer Data Standards path `/cds-au/v1/banking/products`. Confirmed live with an HTTP 200 JSON response carrying a `data.products` array, an `x-v` response version header, and `x-fapi-interaction-id`, currently serving 41 products at endpoint version `x-v` 4.
+#### MCP servers (1)
 
-- **Human URL:** [https://developer.newcastlepermanent.com.au/](https://developer.newcastlepermanent.com.au/)
-- **Base URL:** `https://openbank.newcastlepermanent.com.au/cds-au/v1/banking/products`
+Model Context Protocol servers that expose the API to agents.
 
-#### Tags
+- [newcastle-permanent](https://apis.io/servers/newcastle-permanent/newcastle-permanent/)
 
-- CDR
-- Open Banking
-- Product Reference Data
-- Banking
-- Australia
+#### Collections (14)
 
-#### Properties
+Postman and Open Collection request collections.
 
-- [Documentation](https://developer.newcastlepermanent.com.au/)
-- [API Reference](https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api_get-products)
-- [OpenAPI](openapi/newcastle-permanent-cds-banking-products-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
+- [CDR Banking Accounts API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-accounts-api/)
+- [CDR Banking Accounts Banking Account Balances API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-banking-account-balances-api/)
+- [CDR Banking Accounts Banking Account Direct Debits API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-banking-account-direct-debits-api/)
+- [CDR Banking Accounts Banking Account Scheduled Payments API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-banking-account-scheduled-payments-api/)
+- [CDR Banking Accounts Banking Account Transactions API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-banking-account-transactions-api/)
+- [CDR Banking Accounts API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-banking-accounts-api/)
+- [CDR Accounts Banking API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-banking-api/)
+- [CDR Banking Accounts Banking Payees API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-banking-payees-api/)
+- [CDR Banking Accounts Banking Products API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-banking-products-api/)
+- [CDR Banking Accounts Common API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-common-api/)
+- [CDR Banking Accounts Customer API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-customer-api/)
+- [CDR Banking Accounts Direct Debits API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-direct-debits-api/)
+- [CDR Banking Accounts Payees API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-payees-api/)
+- [CDR Banking Accounts Scheduled Payments API](https://apis.io/collections/newcastle-permanent/open-newcastle-permanent-scheduled-payments-api/)
 
-## Common Properties
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Newcastle Permanent Cds Banking Products Overlay](https://apis.io/overlays/newcastle-permanent/newcastle-permanent-cds-banking-products-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Newcastle Permanent Authentication](https://apis.io/security/newcastle-permanent/newcastle-permanent-authentication/)
+- [Newcastle Permanent Domain Security](https://apis.io/security/newcastle-permanent/newcastle-permanent-domain-security/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Newcastle Permanent Scopes](https://apis.io/scopes/newcastle-permanent/newcastle-permanent-scopes/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
 
 - [Website](https://www.newcastlepermanent.com.au/)
-- [Developer Portal](https://developer.newcastlepermanent.com.au/)
 - [Documentation](https://consumerdatastandardsaustralia.github.io/standards/)
-- [LinkedIn](https://www.linkedin.com/company/newcastle-permanent)
+- [Getting started](https://developer.newcastlepermanent.com.au/public/apis)
+- [API reference](https://consumerdatastandardsaustralia.github.io/standards/#cdr-banking-api)
+- [Support](https://www.newcastlepermanent.com.au/contact-us)
+- [Compliance](https://www.newcastlepermanent.com.au/cdr-policy)
+- [Terms of service](https://www.newcastlepermanent.com.au/terms-of-use)
+- [Privacy policy](https://www.newcastlepermanent.com.au/privacy-policy)
+- [Status](https://openbank.newcastlepermanent.com.au/cds-au/v1/discovery/status)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+**Kin Score 39.2** — thin · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 78.6 |
+| Contract quality | 46.3 |
+| Contract governance | 4.5 |
+| Operational transparency | 15.8 |
+| Developer ergonomics | 35.1 |
+| Access clarity | 28.9 |
+
+**Agent readiness 34.7** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | served (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | — |
+| Rate Limit Signal | — |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | served (partial credit) |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | yes |
+| Agentic Commerce | — |
+
+**Regulatory alignment 54.3** — Banking & Open Finance
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/newcastle-permanent/](https://apis.io/providers/newcastle-permanent/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Newcastle Permanent Building Society: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/newcastle-permanent/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
